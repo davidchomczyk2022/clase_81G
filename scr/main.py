@@ -28,18 +28,19 @@ move_left = False
 move_right = False
 
 
-rect_w = 30
-rect_h = 30
+rect_w = 70
+rect_h = 70
 
-width_coin = 20
-height_coin = 20
+width_coin = 30
+height_coin = 30
+
 count_conis = 20
 
 #--->seteo sonidos 
 golpe_sound = pygame.mixer.Sound("./scr/sonidos/ungolpe_prev.mp3")
 round_two = pygame.mixer.Sound("./scr/sonidos/round-two.mp3")
 round_three = pygame.mixer.Sound("./scr/sonidos/round-three.mp3")
-
+background = pygame.transform.scale(pygame.image.load("./scr/sonidos/fondo_pantalla.jpg"),size_screen)
 #--->musica  fondo (solo 1 se permite)
 pygame.mixer.music.load("./scr/sonidos/kit-auto-fantastico-series-tv-.mp3")
 
@@ -50,16 +51,21 @@ pygame.mixer.music.play()
 #-->control de volumen 
 pygame.mixer.music.set_volume(0.2)
 playing_music = True
+
+#--->CARGA DE IMAGENES
+imagen_player = pygame.image.load("./scr/sonidos/alien.png")
+imagen_asteroide = pygame.image.load("./scr/sonidos/asteroide_2.jpg")
+
 #-->eventos personales
 EVENT_NWE_COIN = pygame.USEREVENT + 1
 
 pygame.time.set_timer(EVENT_NWE_COIN,3000)
 
 
-block = (create_block(randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h,get_color(colors),radio= 30))
+block = (create_block(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h,get_color(colors),radio= 30))
 
 coins = []
-generate_coins(coins,count_coins)
+generate_coins(coins,count_coins,imagen_asteroide)
 cont_comer = 0
 
 
@@ -108,9 +114,17 @@ while is_running:
                     pygame.mixer.music.pause()
                 else:
                     pygame.mixer.music.unpause()
-                playing_music = not playing_music            
+                playing_music = not playing_music
        
-
+            if evento.key == K_p:
+                if playing_music:
+                    pygame.mixer.music.pause()
+                    mostar_texto(screen,"PAUSA",fuente,center_scree,red,black)
+                    wait_user()
+                if playing_music:
+                    wait_user()
+                    pygame.mixer.music.unpause()
+                
 
 
            # print(move_left,move_right,move_up,move_down)
@@ -127,12 +141,12 @@ while is_running:
                     move_down = False
             #print(move_left,move_right,move_up,move_down)
         if evento.type == EVENT_NWE_COIN:
-             coins.append(create_block(randint(0,width - width_coin),randint(0,height - height_coin),
+             coins.append(create_block(imagen_asteroide,randint(0,width - width_coin),randint(0,height - height_coin),
                                        width_coin,height_coin,green,0,0,height_coin // 2))    
 
         if evento.type == MOUSEBUTTONDOWN:
             if evento.button == 1:
-                new_coin = create_block(evento.pos[0],evento.pos[1],
+                new_coin = create_block(imagen_asteroide,evento.pos[0],evento.pos[1],
                                         width_coin,height_coin,cyan,0,0,height_coin // 2)
                 new_coin["rect"].left -= width_coin // 2
                 new_coin["rect"].top -= height_coin // 2
@@ -171,7 +185,7 @@ while is_running:
                 golpe_sound.play()
             
     if len(coins) == 0:
-         generate_coins(coins,count_coins)
+         generate_coins(coins,count_coins,imagen_asteroide)
          round_two.play()
     elif len(coin) == 0:
          round_three.play()
@@ -186,14 +200,18 @@ while is_running:
 
 
     #---> dibujar pantalla-------------------->
-    screen.fill(black)
-    screen.blit(texto,rec_texto) 
+    #screen.fill(black)
+    screen.blit(background,origin)
 
-    pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
-    for coin in coins:
-          pygame.draw.rect(screen,coin["color"],coin["rect"],coin["borde"],coin["radio"])
-
+    dibujar_asteroide(screen,coins)
          
+
+    #pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
+    screen.blit(block["imagen"],block["rect"])
+
+    screen.blit(texto,rec_texto) 
+   
     #----->ACTUALIZO PANTALLA----------------->
     pygame.display.flip()
-pygame.quit()
+terminar()
+
