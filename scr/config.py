@@ -11,6 +11,9 @@ center_screen_y = height // 2
 FPS = 60
 SPEED = 5
 
+
+
+
 #COLORES
 red = (255,0,0)
 green = (0,255,0)
