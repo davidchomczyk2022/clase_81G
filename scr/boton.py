@@ -16,8 +16,8 @@ def terminar():
 #---> creo un reloj
 clock = pygame.time.Clock()
 
-COLOR_NORMAL=(0,255,0)
-COLOR_ESPECIAL = (255,0,0)
+COLOR_NORMAL = red
+COLOR_ESPECIAL = magenta
 #CONFIGURO LA PANTALLA PRINCIPAL
 screen = pygame.display.set_mode((800,600))
 pygame.display.set_caption("Primer Juego")

@@ -7,6 +7,8 @@ from sys import exit
 from config import *
 from colisiones import detectar_colision_circulo
 from pygame.locals import *
+from utilis import *
+#from menu import *
 
 
 
@@ -55,8 +57,9 @@ playing_music = True
 
 #-->creo boton
 
-btn_comenzar = crear_boton("Comenzar",(150,40),center_scree,green,magenta,white)
+btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 100, *size_button)
 #--->CARGA DE IMAGENES
+
 imagen_player = pygame.image.load("./scr/sonidos/alien.png")
 imagen_asteroide = pygame.image.load("./scr/sonidos/asteroide_2.jpg")
 
@@ -66,7 +69,7 @@ EVENT_NWE_COIN = pygame.USEREVENT + 1
 pygame.time.set_timer(EVENT_NWE_COIN,3000)
 
 
-block = (create_block(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h,get_color(colors),radio= 30))
+block = create_block(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h,get_color(colors),radio= 30)
 max_contador = 0
 
 while True:
@@ -90,19 +93,15 @@ while True:
 
     screen.fill(black)
     mostar_texto(screen,"Asteroides",fuente,(width //2 ,50 ),green)
-    screen.blit(btn_comenzar["boton"],btn_comenzar["rect"])
-    x = btn_comenzar["sup_texto"].get_rect()
-    x.center = center_scree
-    screen.blit(btn_comenzar["sup_texto"],x)
-    #mostar_texto(screen,"Presione una tecla para comenzar....",fuente,(width //2 , height - 50 ),blue)
-
+   #-->creo el boron,, lo muestro en su estado final
+   
     pygame.display.flip()
-    wait_click_stark(btn_comenzar["rect"],btn_comenzar["boton"])
+    wait_click_stark(btn_comenzar)
 
     #---> aca dejo invicible el mouse
     pygame.mouse.set_visible(False)
 
-    pygame.mixer.music.play()
+    pygame.mixer.music.play(-1)
 
 
     time_plate = FPS * 30
@@ -304,4 +303,5 @@ while True:
     wait_user()
 
 terminar()
+
 

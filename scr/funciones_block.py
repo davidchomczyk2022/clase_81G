@@ -1,3 +1,5 @@
+
+from  utilis import *
 from aleatorios import *
 from pygame.locals import *
 from random import *
@@ -8,12 +10,14 @@ from pygame import display, time, draw, event
 from sys import exit
 
 
+
+
 UR = 9
 DR = 3
 DL = 1
 UL = 7
 direcciones = (UR,DR,DL,UL)
-
+screen = pygame.display.set_mode(size_screen)
 rect_w = 40
 rect_h = 40
 width_coin = 20
@@ -45,9 +49,11 @@ def wait_user():
                 if evento.key == K_ESCAPE:
                     terminar()
                 return        
-            
-def wait_click_stark(rect_boton,sup_boton):
+#---> funcion creo un boton y al psar x encima recreo un hover (cambio de color el boton )            
+def wait_click_stark(rect_boton):
     while True:
+        crear_boton(screen,"Comenzar",magenta,green,rect_boton,cyan)
+        pygame.display.flip()
         for evento in event.get():
             if evento.type == QUIT:
                 terminar()
@@ -55,15 +61,10 @@ def wait_click_stark(rect_boton,sup_boton):
                 if evento.key == K_ESCAPE:
                     terminar()
             if evento.type == MOUSEBUTTONDOWN:
-                if punto_en_rectangulo(evento.pos, rect_boton):
-                    sup_boton.fill(magenta)
-                    #screen.blit(sup_boton,rect_boton)
-                    pygame.display.flip()
-            if evento.type == MOUSEBUTTONUP:
-                if punto_en_rectangulo(evento.pos,rect_boton):
-                    return
-                         
-            
+                    cursor_posicion = evento.pos
+                    if evento.button == 1:
+                        if rect_boton.collidepoint(cursor_posicion):
+                            return None
 
 def punto_en_rectangulo(punto, rect):
     x,y = punto
@@ -115,7 +116,7 @@ def dibujar_asteroide(superficie,coins):
             pygame.draw.rect(superficie,coin["color"],coin["rect"],
                         coin["borde"],coin["radio"])
 
-def crear_boton(texto,size,coordenada,color,color_click,font_color):
+def crear_boton_old(texto,size,coordenada,color,color_click,font_color):
    # fuente = pygame.font.Font(None,size[1] - 6)
     fuente = pygame.font.SysFont(None,32)
     boton = pygame.Surface(size)
@@ -140,3 +141,23 @@ def crear_boton(texto,size,coordenada,color,color_click,font_color):
 # blocks = [,
 #           {"rect":pygame.Rect(randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h),"color": get_new_color(),"dir":DL,"borde":0,"radio":-1},
 #           {"rect":pygame.Rect(randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h),"color": get_new_color(),"dir":DR,"borde":0,"radio":-1}]
+
+    # pygame.draw.rect(screen,magenta,rect_saludar,border_radius=5)
+    # render_saludar = fuente.render("saludar",True,font_color)
+    # rect_text_saludar = render_saludar.get_rect(center = rect_saludar.center )
+    # #rect_text_saludar.center = rect_saludar.center
+    # screen.blit(render_saludar,rect_text_saludar)
+
+    
+    # pygame.draw.rect(screen,magenta,rect_brindar,border_radius=5)
+    # render_brindar = fuente.render("brindar",True,font_color)
+    # rect_text_brindar = render_brindar.get_rect(center = rect_brindar.center )
+    # #rect_text_saludar.center = rect_saludar.center
+    # screen.blit(render_brindar,rect_text_brindar)
+
+
+    # pygame.draw.rect(screen,magenta,rect_despedir,border_radius=5)
+    # render_despedir = fuente.render("despedir",True,font_color)
+    # rect_text_despedir = render_despedir.get_rect(center = rect_despedir.center )
+    # #rect_text_saludar.center = rect_saludar.center
+    # screen.blit(render_despedir,rect_text_despedir)

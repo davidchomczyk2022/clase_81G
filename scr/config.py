@@ -27,6 +27,9 @@ yelloy = (255,255,0)
 custom = (255,174,201)
 colors = [red,green,blue,white,cyan,magenta,yelloy,custom]
 
+size_button = (200,50)
+font_color = red
+
 def get_color(lista):
     from random import randrange
     return lista[randrange(len(lista))]
