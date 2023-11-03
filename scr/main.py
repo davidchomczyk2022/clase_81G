@@ -13,16 +13,20 @@ from pygame.locals import *
 
 
 #inicializar los modulos de pygame
-pygame.init()
-
+#-------------utlizo  el try excepts en caso que no encuntre la ventana ---------
+try:
+    pygame.init()
+    #---> CONFIGURO LA DIRECCION
+    screen = pygame.display.set_mode(size_screen)
+except pygame.error:
+    print("Error no se pued Abrir la ventana :")
 #---> creo un reloj
 clock = pygame.time.Clock()
 
 #CONFIGURO LA PANTALLA PRINCIPAL
-screen = pygame.display.set_mode(size_screen)
 pygame.display.set_caption("Primer Juego")
 
-#---> CONFIGURO LA DIRECCION
+
 
 move_up = False
 move_down = False
@@ -81,11 +85,14 @@ while True:#--> aca se reinicia el juego en un bucle
     monedas = 0
     rafaga = False
     lives = 3
-
-    fuente = pygame.font.SysFont("MV Boli",30)
-    texto = fuente.render(f"COINS :{monedas}",True,red)
-    rec_texto = texto.get_rect()
-    rec_texto.midtop = (width // 2 , 30)
+    #-----------UTILIZO try except en caso  que la funte se cargue mal o no se encuentre en el ordenador-----
+    try:
+        fuente = pygame.font.SysFont("MV Boli",30)
+        texto = fuente.render(f"COINS :{monedas}",True,red)
+        rec_texto = texto.get_rect()
+        rec_texto.midtop = (width // 2 , 30)
+    except pygame.error:
+        print("Error Fuente no se encuentra : ")    
 
     mostrar_texto(screen,f"Lives: {lives}",fuente,(200, height -30),magenta)
     
