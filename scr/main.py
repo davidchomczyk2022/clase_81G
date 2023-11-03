@@ -29,7 +29,7 @@ move_down = False
 move_left = False
 move_right = False
 
-
+   
 rect_w = 70
 rect_h = 70
 width_coin = 30
@@ -38,13 +38,14 @@ height_coin = 30
 count_conis = 20
 
 #--->seteo sonidos 
-golpe_sound = pygame.mixer.Sound("./scr/sonidos/ungolpe_prev.mp3")
-round_two = pygame.mixer.Sound("./scr/sonidos/round-two.mp3")
-round_three = pygame.mixer.Sound("./scr/sonidos/round-three.mp3")
-game_over_sound = pygame.mixer.Sound("./scr/sonidos/game-over-1-gameover.mp3")
-background = pygame.transform.scale(pygame.image.load("./scr/sonidos/espacio_01.jpg"),size_screen)
+golpe_sound = pygame.mixer.Sound("./scr/sounds/ungolpe_prev.mp3")
+round_two = pygame.mixer.Sound("./scr/sounds/round-two.mp3")
+round_three = pygame.mixer.Sound("./scr/sounds/round-three.mp3")
+game_over_sound = pygame.mixer.Sound("./scr/sounds/game-over-1-gameover.mp3")
+game_over_2 = pygame.mixer.Sound("./scr/sounds/final_prev.mp3")
+background = pygame.transform.scale(pygame.image.load("./scr/images/espacio_01.jpg"),size_screen)
 #--->musica  fondo (solo 1 se permite)
-pygame.mixer.music.load("./scr/sonidos/stranger-things-124008.mp3")
+pygame.mixer.music.load("./scr/sounds/stranger-things-124008.mp3")
 
 
 # --->  sonido .PLAY tiene 3 parametros
@@ -59,8 +60,8 @@ playing_music = True
 btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 100, *size_button)
 #--->CARGA DE IMAGENES
 
-imagen_player = pygame.image.load("./scr/sonidos/nave_01.webp")
-imagen_asteroide = pygame.image.load("./scr/sonidos/asteroide_2.jpg")
+imagen_player = pygame.image.load("./scr/images/nave_01.webp")
+imagen_asteroide = pygame.image.load("./scr/images/asteroide_2.jpg")
 
 #-->eventos personales
 EVENT_NWE_COIN = pygame.USEREVENT + 1
@@ -80,7 +81,7 @@ while True:#--> aca se reinicia el juego en un bucle
     rafaga = False
     lives = 3
 
-    fuente = pygame.font.SysFont("MV Boli",20)
+    fuente = pygame.font.SysFont("MV Boli",40)
     texto = fuente.render(f"COINS :{monedas}",True,red)
     rec_texto = texto.get_rect()
     rec_texto.midtop = (width // 2 , 30)
@@ -100,7 +101,7 @@ while True:#--> aca se reinicia el juego en un bucle
     pygame.mouse.set_visible(True)
 
     screen.fill(black)
-    mostrar_texto(screen,"Asteroides",fuente,(width //2 ,50 ),green)
+    mostrar_texto(screen,"Interestelar",fuente,(width //2 ,50 ),green)
    #-->creo el boron,, lo muestro en su estado final
    
     pygame.display.flip()

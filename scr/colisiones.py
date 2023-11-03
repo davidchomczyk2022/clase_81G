@@ -4,6 +4,7 @@
 def calcular_radio(rect):
     return rect.height // 2
 
+
 def distancia_entre_puntos(punto_1,punto_2):
     x1, y1 = punto_1
     x2, y2 = punto_2
