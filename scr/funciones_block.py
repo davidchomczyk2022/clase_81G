@@ -12,6 +12,7 @@ from sys import exit
 
 
 
+
 UR = 9
 DR = 3
 DL = 1
@@ -52,7 +53,7 @@ def wait_user():
 #---> funcion creo un boton y al psar x encima recreo un hover (cambio de color el boton )            
 def wait_click_stark(rect_boton):
     while True:
-        crear_boton(screen,"Comenzar",magenta,green,rect_boton,cyan)
+        crear_boton(screen,"Comenzar",red,white,rect_boton,cyan,black)
         pygame.display.flip()
         for evento in event.get():
             if evento.type == QUIT:
@@ -73,7 +74,7 @@ def punto_en_rectangulo(punto, rect):
 
 
 
-def mostar_texto(superficie,texto,fuente,coordenadas,color_fuente = white,color_fondo=black):
+def mostrar_texto(superficie,texto,fuente,coordenadas,color_fuente = white,color_fondo=black):
     sup_texto = fuente.render(texto,True,color_fuente,color_fondo)
     rec_texto = sup_texto.get_rect()
     rec_texto.center = coordenadas
@@ -92,9 +93,9 @@ def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color 
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
 
 
-def create_laser(mid_bottom, speed_y = 5):
+def create_laser(mid_bottom, speed_y = 5,color=red):
 
-    return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16),"color":red,"speed_y":speed_y}
+    return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
 
 
 def create_conis(imagen=None):

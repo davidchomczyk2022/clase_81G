@@ -1,7 +1,7 @@
 
 
-width = 800
-height = 600
+width = 900
+height = 700
 size_screen = (width,height)
 origin = (0,0)
 center_scree = (width // 2, height // 2)

@@ -57,9 +57,9 @@ while is_running:
 
 
 
-    crear_boton(screen,"Saludar", magenta,green, rect_saludar,white,fuente)
-    crear_boton(screen,"Brindar",magenta,green,rect_brindar,black,fuente)
-    crear_boton(screen,"Despedir",magenta,green,rect_despedir,yelloy,fuente)
+    crear_boton(screen,"Saludar", magenta,green, rect_saludar,white,black,fuente)
+    crear_boton(screen,"Brindar",magenta,green,rect_brindar,black,white,fuente)
+    crear_boton(screen,"Despedir",magenta,green,rect_despedir,yelloy,black,fuente)
 
 
 

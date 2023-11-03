@@ -9,10 +9,11 @@ def mostrar_texto_centrado(screen,texto,center_x,center_y,color,fuente):
     screen.blit(render,rect_text)
 
 
-def crear_boton(screen,texto,bg_color,bg_color_hover,rect_boton:pygame.Rect,font_color,fuente = pygame.font.SysFont
-                (None,36)):
+def crear_boton(screen,texto,bg_color,bg_color_hover,rect_boton:pygame.Rect,font_color,font_color_hover,
+        fuente = pygame.font.SysFont(None,36)):
     if rect_boton.collidepoint(pygame.mouse.get_pos()):
         pygame.draw.rect(screen,bg_color_hover,rect_boton,border_radius=5) 
+        mostrar_texto_centrado(screen,texto,*rect_boton.center,font_color_hover,fuente)
     else:
         pygame.draw.rect(screen,bg_color,rect_boton,border_radius=5)         
     
