@@ -41,8 +41,8 @@ speed_coin_min = 1
 speed_coin_max = 7
 speed_laser = 5
 
-count_coins = 5
-coins = []
+count_asteroid = 5
+asteroid = []
 
 
 def get_color(lista):
@@ -106,7 +106,7 @@ def mostrar_texto(superficie,texto,fuente,coordenadas,color_fuente = white,color
 
     #pygame.display.flip() 
 
-
+#-------------------------creo el bloque que va contener la imagenb principal
 def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color = (255,255,255),dir = DR,
                  borde = 0,radio = -1,speed_x = 5, speed_y = 5):
     if imagen:
@@ -114,9 +114,8 @@ def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color 
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
 
-
+#-----------funcion se crea el laser ---------------
 def create_laser(mid_bottom, speed_y = 5,color=red):
-
     return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
 
 
@@ -125,20 +124,20 @@ def create_conis(imagen=None):
     height_coin = randint(width_coin_min,height_coin_max)
     return create_block(imagen,randint(0,width - width_coin),randint(-height, - height_coin),
                         width_coin,height_coin,magenta,0,0,height_coin // 2,speed_y=randint(speed_coin_min,speed_coin_max))
-
-
-def generate_coins(coins, count_coins,imagen):
-    for i in range(count_coins):
-        coins.append(create_conis(imagen))
-
-def dibujar_asteroide(superficie,coins):
-    for coin in coins:
+#---------------creo nuevos asteroides--------------------------------------
+def generate_asteroid(asteroid, count_asteroid,imagen):
+    for i in range(count_asteroid):
+        asteroid.append(create_conis(imagen))
+#----------------------dibujo la siupercie del asteroide--------------------
+def dibujar_asteroide(superficie,asteroid):
+    for coin in asteroid:
         if coin["imagen"]:
             superficie.blit(coin["imagen"],coin["rect"])
         else:
             pygame.draw.rect(superficie,coin["color"],coin["rect"],
                         coin["borde"],coin["radio"])
-
+            
+#-----> creo boton  y agreago la funte ala surfase--------------
 def crear_boton_old(texto,size,coordenada,color,color_click,font_color):
    # fuente = pygame.font.Font(None,size[1] - 6)
     fuente = pygame.font.SysFont(None,32)

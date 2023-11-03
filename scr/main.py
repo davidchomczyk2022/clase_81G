@@ -35,7 +35,7 @@ rect_h = 70
 width_coin = 30
 height_coin = 30
 
-count_conis = 20
+count_asteroid = 10
 
 #--->seteo sonidos 
 golpe_sound = pygame.mixer.Sound("./scr/sounds/ungolpe_prev.mp3")
@@ -60,15 +60,16 @@ playing_music = True
 btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 100, *size_button)
 #--->CARGA DE IMAGENES
 
-imagen_player = pygame.image.load("./scr/images/nave_01.webp")
-imagen_asteroide = pygame.image.load("./scr/images/asteroide_2.jpg")
-
+imagen_player = pygame.image.load("./scr/images/nave_1-alcon.png")
+imagen_asteroide = pygame.image.load("./scr/images/asteroide_2-nuevo.png")
+imagen_asteroide2 = pygame.image.load("./scr/images/asteroide-3.png")
+imagen_presentacion= pygame.image.load("./scr/images/fondo_pantalla.jpg")
 #-->eventos personales
 EVENT_NWE_COIN = pygame.USEREVENT + 1
 
 pygame.time.set_timer(EVENT_NWE_COIN,3000)
 
-
+#-----------creo el bloque donde le agrego la imagen de la nave y le doy los parametros -------
 block = create_block(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h,get_color(colors),radio= 30)
 max_contador = 0
 
@@ -81,16 +82,16 @@ while True:#--> aca se reinicia el juego en un bucle
     rafaga = False
     lives = 3
 
-    fuente = pygame.font.SysFont("MV Boli",40)
+    fuente = pygame.font.SysFont("MV Boli",30)
     texto = fuente.render(f"COINS :{monedas}",True,red)
     rec_texto = texto.get_rect()
     rec_texto.midtop = (width // 2 , 30)
 
-    mostrar_texto(screen,f"Lives: {lives}",fuente,(200, height -50),magenta)
+    mostrar_texto(screen,f"Lives: {lives}",fuente,(200, height -30),magenta)
     
-    #---> creo lista de coins
-    coins = []
-    generate_coins(coins,count_coins,imagen_asteroide)
+    #---> creo lista de asteriodes
+    asteroid = []
+    generate_asteroid(asteroid,count_asteroid,imagen_asteroide)
     cont_comer = 0
 
     #-->creo una lista de laseres
@@ -102,7 +103,8 @@ while True:#--> aca se reinicia el juego en un bucle
 
     screen.fill(black)
     mostrar_texto(screen,"Interestelar",fuente,(width //2 ,50 ),green)
-   #-->creo el boron,, lo muestro en su estado final
+
+   #-->creo el boton,, lo muestro en su estado final
    
     pygame.display.flip()
     wait_click_stark(btn_comenzar)
@@ -196,9 +198,9 @@ while True:#--> aca se reinicia el juego en un bucle
                  #--> aca se utiliza la letra g para la rafaga de lasers(queda en FALSE)
                 if evento.key == K_g:
                     rafaga = False
-                #print(move_left,move_right,move_up,move_down)
+                
             if evento.type == EVENT_NWE_COIN:
-                coins.append(create_block(imagen_asteroide,randint(0,width - width_coin),randint(0,height - height_coin),
+                asteroid.append(create_block(imagen_asteroide,randint(0,width - width_coin),randint(0,height - height_coin),
                                         width_coin,height_coin,green,0,0,height_coin // 2))    
 
             if evento.type == MOUSEBUTTONDOWN:
@@ -244,7 +246,7 @@ while True:#--> aca se reinicia el juego en un bucle
     
 
         #--->muevo los asteroides en caida
-        for coin in coins:
+        for coin in asteroid:
             #-->movimiento normal si 
             if not trick_reverse and not trick_slow: #--> aca no pasa nada el movimiento es normal
                 if coin["rect"].top <= height:
@@ -282,9 +284,9 @@ while True:#--> aca se reinicia el juego en un bucle
             for laser in lasers[:]:
                     #-->de detecta colocion de la nave con asteroides
                 colision  = False
-                for coin in coins[:]:
+                for coin in asteroid[:]:
                     if detectar_colision_circulo(coin["rect"],laser["rect"]):
-                        coins.remove(coin)
+                        asteroid.remove(coin)
                         monedas += 1 
                         texto = fuente.render(f"COINS :{monedas}",True,red)
                         rec_texto = texto.get_rect()
@@ -294,8 +296,8 @@ while True:#--> aca se reinicia el juego en un bucle
                         if playing_music:
                             golpe_sound.play()
                         
-                        if len(coins) == 0:
-                            generate_coins(coins,count_coins,imagen_asteroide)
+                        if len(asteroid) == 0:
+                            generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
                             round_two.play()
                         elif len(coin) == 0:
                             round_three.play()
@@ -305,9 +307,9 @@ while True:#--> aca se reinicia el juego en un bucle
             if laser:
                     #-->de detecta colocion de la nave con asteroides
                 colision  = False
-                for coin in coins[:]:       
+                for coin in asteroid[:]:       
                     if detectar_colision_circulo(coin["rect"],laser["rect"]):
-                        coins.remove(coin)
+                        asteroid.remove(coin)
                         monedas += 1 
                         texto = fuente.render(f"COINS :{monedas}",True,red)
                         rec_texto = texto.get_rect()
@@ -317,17 +319,17 @@ while True:#--> aca se reinicia el juego en un bucle
                         if playing_music:
                             golpe_sound.play()
                         
-                        if len(coins) == 0:
-                            generate_coins(coins,count_coins,imagen_asteroide)
+                        if len(asteroid) == 0:
+                            generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
                             round_two.play()
                         elif len(coin) == 0:
                             round_three.play()
                 if colision:
                     laser = None
 
-        for coin in coins[:]:       
+        for coin in asteroid[:]:       
                 if detectar_colision_circulo(coin["rect"],block["rect"]):
-                    coins.remove(coin)
+                    asteroid.remove(coin)
                     if lives > 1:
                         lives -= 1
                     else:
@@ -337,11 +339,11 @@ while True:#--> aca se reinicia el juego en un bucle
                     if playing_music:
                         golpe_sound.play()
                 
-                if len(coins) == 0:
-                    generate_coins(coins,count_coins,imagen_asteroide)
-                    round_two.play()
-                elif len(coin) == 0:
-                    round_three.play()
+                # if len(asteroid) == 0:
+                #     generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
+                #     round_two.play()
+                # elif len(coin) == 0:
+                #     round_three.play()
             
         if cont_comer >= 0:
             cont_comer -= 1
@@ -356,9 +358,8 @@ while True:#--> aca se reinicia el juego en un bucle
         #screen.fill(black)
         screen.blit(background,origin)
 
-        dibujar_asteroide(screen,coins)
+        dibujar_asteroide(screen,asteroid)
             
-
         #pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
         screen.blit(block["imagen"],block["rect"])
         #-->creo el lasery creo la rafaga de lasers
@@ -372,7 +373,7 @@ while True:#--> aca se reinicia el juego en un bucle
 
         screen.blit(texto,rec_texto) 
         #---> aca mostramos las vidas que tenemos al comenzar
-        mostrar_texto(screen,f"Lives: {lives}",fuente,(200, height -50),magenta)
+        mostrar_texto(screen,f"Lives: {lives}",fuente,(100, height -30),magenta)
        
         #----->ACTUALIZO PANTALLA----------------->
         pygame.display.flip()
