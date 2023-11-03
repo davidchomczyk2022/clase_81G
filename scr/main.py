@@ -1,13 +1,13 @@
 
 import pygame
-from aleatorios import *
+#from aleatorios import *
 from funciones_block import *
 from random import randint, randrange
 from sys import exit
 from config import *
 from colisiones import detectar_colision_circulo
 from pygame.locals import *
-from utilis import *
+#from utilis import *
 
 
 
@@ -32,7 +32,6 @@ move_right = False
 
 rect_w = 70
 rect_h = 70
-monedas = 0
 width_coin = 30
 height_coin = 30
 
@@ -240,7 +239,7 @@ while True:#--> aca se reinicia el juego en un bucle
             block["rect"].left += SPEED
 
 
-        pygame.mouse.set_pos(block["rect"].centerx,block["rect"].centery)    
+        pygame.mouse.set_pos(block["rect"].centerx,block["rect"].centery)
     
 
         #--->muevo los asteroides en caida
@@ -282,7 +281,7 @@ while True:#--> aca se reinicia el juego en un bucle
             for laser in lasers[:]:
                     #-->de detecta colocion de la nave con asteroides
                 colision  = False
-                for coin in coins[:]:       
+                for coin in coins[:]:
                     if detectar_colision_circulo(coin["rect"],laser["rect"]):
                         coins.remove(coin)
                         monedas += 1 

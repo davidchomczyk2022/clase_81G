@@ -1,6 +1,6 @@
 
-from  utilis import *
-from aleatorios import *
+#from  utilis import *
+#from aleatorios import *
 from pygame.locals import *
 from random import *
 from config import *
@@ -8,9 +8,17 @@ import pygame
 from colisiones import detectar_colision_circulo
 from pygame import display, time, draw, event
 from sys import exit
+pygame.font.init()
+
+def get_color(lista):
+    return lista[randrange(len(lista))]
 
 
-
+def get_new_color():
+    r = randrange(256)
+    g = randrange(256)
+    b = randrange(256)
+    return (r,g,b)
 
 
 UR = 9
@@ -35,6 +43,20 @@ speed_laser = 5
 
 count_coins = 5
 coins = []
+
+
+def get_color(lista):
+    return lista[randrange(len(lista))]
+
+
+def get_new_color():
+    r = randrange(256)
+    g = randrange(256)
+    b = randrange(256)
+    return (r,g,b)
+
+
+
 
 def terminar():
     pygame.quit()
@@ -133,7 +155,22 @@ def crear_boton_old(texto,size,coordenada,color,color_click,font_color):
     return {"boton":boton,"sup_texto":sup_texto, "rect":rect_boton,"color":color,
             "color_click":color_click}
 
+def mostrar_texto_centrado(screen,texto,center_x,center_y,color,fuente):
+    render = fuente.render(texto,True,color)
+    rect_text = render.get_rect(center = (center_x,center_y))
+    #rect_text_saludar.center = rect_saludar.center
+    screen.blit(render,rect_text)
 
+
+def crear_boton(screen,texto,bg_color,bg_color_hover,rect_boton:pygame.Rect,font_color,font_color_hover,
+        fuente = pygame.font.SysFont(None,36)):
+    if rect_boton.collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(screen,bg_color_hover,rect_boton,border_radius=5) 
+        mostrar_texto_centrado(screen,texto,*rect_boton.center,font_color_hover,fuente)
+    else:
+        pygame.draw.rect(screen,bg_color,rect_boton,border_radius=5)         
+    
+    mostrar_texto_centrado(screen,texto,*rect_boton.center,font_color,fuente)
 
 # for i in range(count_conis):
 #     coins.append(create_block(randint(0,width - width_coin),randint(0,height - height_coin),width_coin,height_coin,yelloy,0,0,height_coin // 2))
