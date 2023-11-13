@@ -41,7 +41,7 @@ height_coin = 30
 
 count_asteroid = 10
 
-#--->seteo sonidos 
+# --->seteo sonidos 
 golpe_sound = pygame.mixer.Sound("./scr/sounds/ungolpe_prev.mp3")
 round_two = pygame.mixer.Sound("./scr/sounds/round-two.mp3")
 round_three = pygame.mixer.Sound("./scr/sounds/round-three.mp3")
@@ -53,7 +53,7 @@ pygame.mixer.music.load("./scr/sounds/stranger-things-124008.mp3")
 
 
 # --->  sonido .PLAY tiene 3 parametros
-#pygame.mixer.music.play()
+pygame.mixer.music.play()
 
 #-->control de volumen 
 pygame.mixer.music.set_volume(0.2)
@@ -61,20 +61,26 @@ playing_music = True
 
 #-->creo boton
 
-btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 100, *size_button)
+btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 500, *size_button)
 #--->CARGA DE IMAGENES
 
 imagen_player = pygame.image.load("./scr/images/nave_1-alcon.png")
 imagen_asteroide = pygame.image.load("./scr/images/asteroide_2-nuevo.png")
 imagen_asteroide2 = pygame.image.load("./scr/images/asteroide-3.png")
-imagen_presentacion= pygame.image.load("./scr/images/fondo_pantalla.jpg")
+background2 = pygame.transform.scale(pygame.image.load("./scr/images/fondo_pantalla.jpg"),size_screen)
+# imagen_presentacion= pygame.image.load("./scr/images/fondo_pantalla.jpg")
 #-->eventos personales
 EVENT_NWE_COIN = pygame.USEREVENT + 1
 
 pygame.time.set_timer(EVENT_NWE_COIN,3000)
 
 #-----------creo el bloque donde le agrego la imagen de la nave y le doy los parametros -------
-block = create_block(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h,get_color(colors),radio= 30)
+try:
+    block = create_block(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),
+    rect_w,rect_h,get_color(colors),radio= 30)
+    
+except pygame.error:
+    print("Error al ingresar los datos")    
 max_contador = 0
 
 while True:#--> aca se reinicia el juego en un bucle
@@ -108,7 +114,7 @@ while True:#--> aca se reinicia el juego en un bucle
     #--> aca lo vuelvo hacer vicible al cursos del mouse
     pygame.mouse.set_visible(True)
 
-    screen.fill(black)
+    screen.blit(background2,origin)
     mostrar_texto(screen,"Interestelar",fuente,(width //2 ,50 ),green)
 
    #-->creo el boton,, lo muestro en su estado final
@@ -119,7 +125,7 @@ while True:#--> aca se reinicia el juego en un bucle
     #---> aca dejo invicible el mouse
     pygame.mouse.set_visible(False)
 
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.play(-1)
 
     trick_reverse = False
     trick_slow = False
@@ -187,7 +193,7 @@ while True:#--> aca se reinicia el juego en un bucle
                     
 
 
-            # print(move_left,move_right,move_up,move_down)
+           
             if evento.type == KEYUP:
                 if evento.key == K_RIGHT:
                         move_right = False
@@ -218,14 +224,9 @@ while True:#--> aca se reinicia el juego en un bucle
                     else:    
                         if not laser:
                             laser = create_laser(block["rect"].midtop,speed_laser)
-                        # new_coin = create_block(imagen_asteroide,evento.pos[0],evento.pos[1],
-                        # width_coin,height_coin,cyan,0,0,height_coin // 2)
-                        # new_coin["rect"].left -= width_coin // 2
-                        # new_coin["rect"].top -= height_coin // 2
-                        # coins.append (new_coin)
                 if evento.button == 3:
                     block["rect"].center = center_scree
-    #----> aca es cuando el mouse se mueva por l apantalla del juego
+        #----> aca es cuando el mouse se mueva por l apantalla del juego
             if evento.type == MOUSEMOTION:
                 block["rect"].center = evento.pos
                 
@@ -271,7 +272,7 @@ while True:#--> aca se reinicia el juego en un bucle
     
             #--->creo el movimiento del laser 
             #----> si existe el laser ?
-    #-->creo la rafaga y si existe disparo la rafaga y si NO disparo normal
+            #-->creo la rafaga y si existe disparo la rafaga y si NO disparo normal
         if rafaga:#--> aca recorro una copia de la lista de lasers
             for laser in lasers[:]:
                 if laser["rect"].bottom >= 0:
@@ -301,12 +302,13 @@ while True:#--> aca se reinicia el juego en un bucle
                         cont_comer = 10
                         colision = True
                         if playing_music:
-                            golpe_sound.play()
+                           golpe_sound.play()
                         
                         if len(asteroid) == 0:
                             generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
                             round_two.play()
-                        elif len(coin) == 0:
+                        elif len(asteroid) == 5:
+                            generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
                             round_three.play()
                 if colision:
                     lasers.remove(laser)
@@ -324,13 +326,13 @@ while True:#--> aca se reinicia el juego en un bucle
                         cont_comer = 10
                         colision = True
                         if playing_music:
-                            golpe_sound.play()
+                           golpe_sound.play()
                         
                         if len(asteroid) == 0:
                             generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
                             round_two.play()
                         elif len(coin) == 0:
-                            round_three.play()
+                             round_three.play()
                 if colision:
                     laser = None
 
@@ -344,7 +346,7 @@ while True:#--> aca se reinicia el juego en un bucle
                         is_running = False
                         cont_comer = 10
                     if playing_music:
-                        golpe_sound.play()
+                       golpe_sound.play()
                 
                 # if len(asteroid) == 0:
                 #     generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
