@@ -31,6 +31,17 @@ rect_w = 40
 rect_h = 40
 width_coin = 20
 height_coin = 20
+
+#--> dimenciones de las nave---
+ancho_nave = 20
+largo_nave = 20
+
+ancho_nave_min = 40
+largo_nave_max = 40
+
+speed_nave_min = 1
+speed_nave_max = 7
+#----------------------------------
 width_coin_min = 20
 height_coin_max = 40
 
@@ -124,10 +135,38 @@ def create_conis(imagen=None):
     height_coin = randint(width_coin_min,height_coin_max)
     return create_block(imagen,randint(0,width - width_coin),randint(-height, - height_coin),
                         width_coin,height_coin,magenta,0,0,height_coin // 2,speed_y=randint(speed_coin_min,speed_coin_max))
+#---------------------------------------------------------------------------------
+
+def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color = (255,255,255),dir = DR,
+                 borde = 0,radio = -1,speed_x = 5, speed_y = 5):
+    if imagen:
+        imagen = pygame.transform.scale(imagen,(width,height))
+    return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
+            "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
+#----------------------------------------------------------------------------------------------------------------
+def creo_naves(imagen = None):
+    ancho_nave  = randint(ancho_nave_min,largo_nave_max)
+    largo_nave = randint(ancho_nave_min,largo_nave_max)
+    return create_block(imagen,randint(0,width - ancho_nave),randint(-height, - largo_nave),
+                        ancho_nave,largo_nave,green,0,0,largo_nave // 2,speed_y=randint(speed_nave_min,speed_nave_max))
+
+def genero_naves(naves,numero_naves,imagen):
+    for i in range(numero_naves):
+        naves.append(creo_naves(imagen))
+                        
+#-----------------dibujo la supercie de la nave -----------------
+def dibujar_naves(superficie,naves):
+    for nave in naves:
+        if nave["imagen"]:
+            superficie.blit(nave["imagen"],nave["rect"])
+        else:
+            pygame.draw.rect(superficie,naves["color"],naves["rect"],
+                        nave["borde"],nave["radio"])                        
 #---------------creo nuevos asteroides--------------------------------------
 def generate_asteroid(asteroid, count_asteroid,imagen):
     for i in range(count_asteroid):
         asteroid.append(create_conis(imagen))
+         #asteroid.append(create_conis(imagen))
 #----------------------dibujo la siupercie del asteroide--------------------
 def dibujar_asteroide(superficie,asteroid):
     for coin in asteroid:

@@ -40,16 +40,17 @@ width_coin = 30
 height_coin = 30
 
 count_asteroid = 10
+numero_naves = 5
 
 # --->seteo sonidos 
 golpe_sound = pygame.mixer.Sound("./scr/sounds/ungolpe_prev.mp3")
 round_two = pygame.mixer.Sound("./scr/sounds/round-two.mp3")
 round_three = pygame.mixer.Sound("./scr/sounds/round-three.mp3")
 game_over_sound = pygame.mixer.Sound("./scr/sounds/game-over-1-gameover.mp3")
-game_over_2 = pygame.mixer.Sound("./scr/sounds/final_prev.mp3")
+#game_over_2 = pygame.mixer.Sound("./scr/sounds/final_prev.mp3")
 background = pygame.transform.scale(pygame.image.load("./scr/images/espacio_01.jpg"),size_screen)
 #--->musica  fondo (solo 1 se permite)
-pygame.mixer.music.load("./scr/sounds/stranger-things-124008.mp3")
+pygame.mixer.music.load("./scr/sounds/primer_sonido.mp3")
 
 
 # --->  sonido .PLAY tiene 3 parametros
@@ -65,9 +66,11 @@ btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 500, *s
 #--->CARGA DE IMAGENES
 
 imagen_player = pygame.image.load("./scr/images/nave_1-alcon.png")
+imagen_nave = pygame.image.load("./scr/images/nave_star1.jpg")
+imagen_nave2 = pygame.image.load("./scr/images/nave_star2.jpg")
 imagen_asteroide = pygame.image.load("./scr/images/asteroide_2-nuevo.png")
 imagen_asteroide2 = pygame.image.load("./scr/images/asteroide-3.png")
-background2 = pygame.transform.scale(pygame.image.load("./scr/images/fondo_pantalla.jpg"),size_screen)
+background2 = pygame.transform.scale(pygame.image.load("./scr/images/primera_imagen.jpg"),size_screen)
 # imagen_presentacion= pygame.image.load("./scr/images/fondo_pantalla.jpg")
 #-->eventos personales
 EVENT_NWE_COIN = pygame.USEREVENT + 1
@@ -103,8 +106,12 @@ while True:#--> aca se reinicia el juego en un bucle
     mostrar_texto(screen,f"Lives: {lives}",fuente,(200, height -30),magenta)
     
     #---> creo lista de asteriodes
-    asteroid = []
-    generate_asteroid(asteroid,count_asteroid,imagen_asteroide)
+    #asteroid = []
+    #generate_asteroid(asteroid,count_asteroid,imagen_asteroide)
+    #--------creo las naves-------------
+    naves = []
+    genero_naves(naves,numero_naves,imagen_nave)
+
     cont_comer = 0
 
     #-->creo una lista de laseres
@@ -254,7 +261,7 @@ while True:#--> aca se reinicia el juego en un bucle
     
 
         #--->muevo los asteroides en caida
-        for coin in asteroid:
+        for coin in naves:
             #-->movimiento normal si 
             if not trick_reverse and not trick_slow: #--> aca no pasa nada el movimiento es normal
                 if coin["rect"].top <= height:
@@ -292,9 +299,9 @@ while True:#--> aca se reinicia el juego en un bucle
             for laser in lasers[:]:
                     #-->de detecta colocion de la nave con asteroides
                 colision  = False
-                for coin in asteroid[:]:
+                for coin in naves[:]:
                     if detectar_colision_circulo(coin["rect"],laser["rect"]):
-                        asteroid.remove(coin)
+                        naves.remove(coin)
                         monedas += 1 
                         texto = fuente.render(f"COINS :{monedas}",True,red)
                         rec_texto = texto.get_rect()
@@ -304,11 +311,13 @@ while True:#--> aca se reinicia el juego en un bucle
                         if playing_music:
                            golpe_sound.play()
                         
-                        if len(asteroid) == 0:
-                            generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
+                        if len(naves) == 0:
+                            #generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
+                            genero_naves(naves,numero_naves,imagen_nave2)
                             round_two.play()
-                        elif len(asteroid) == 5:
-                            generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
+                        elif len(naves) == 5:
+                            #generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
+                            genero_naves(naves,numero_naves,imagen_nave2)
                             round_three.play()
                 if colision:
                     lasers.remove(laser)
@@ -316,9 +325,9 @@ while True:#--> aca se reinicia el juego en un bucle
             if laser:
                     #-->de detecta colocion de la nave con asteroides
                 colision  = False
-                for coin in asteroid[:]:       
+                for coin in naves[:]:       
                     if detectar_colision_circulo(coin["rect"],laser["rect"]):
-                        asteroid.remove(coin)
+                        naves.remove(coin)
                         monedas += 1 
                         texto = fuente.render(f"COINS :{monedas}",True,red)
                         rec_texto = texto.get_rect()
@@ -328,17 +337,17 @@ while True:#--> aca se reinicia el juego en un bucle
                         if playing_music:
                            golpe_sound.play()
                         
-                        if len(asteroid) == 0:
-                            generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
+                        if len(naves) == 0:
+                            genero_naves(naves,numero_naves,imagen_nave2)
                             round_two.play()
                         elif len(coin) == 0:
                              round_three.play()
                 if colision:
                     laser = None
 
-        for coin in asteroid[:]:       
+        for coin in naves[:]:       
                 if detectar_colision_circulo(coin["rect"],block["rect"]):
-                    asteroid.remove(coin)
+                    naves.remove(coin)
                     if lives > 1:
                         lives -= 1
                     else:
@@ -367,7 +376,8 @@ while True:#--> aca se reinicia el juego en un bucle
         #screen.fill(black)
         screen.blit(background,origin)
 
-        dibujar_asteroide(screen,asteroid)
+        #dibujar_asteroide(screen,asteroid)
+        dibujar_naves(screen,naves)
             
         #pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
         screen.blit(block["imagen"],block["rect"])

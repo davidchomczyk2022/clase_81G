@@ -1,6 +1,6 @@
 
 
-width = 1000
+width = 1100
 height = 600
 size_screen = (width,height)
 origin = (0,0)
