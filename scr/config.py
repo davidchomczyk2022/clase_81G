@@ -9,11 +9,22 @@ center_scree = (width // 2, height // 2)
 center_screen_x = width // 2
 center_screen_y = height // 2
 
-FPS = 60
-SPEED = 5
+FPS = 50
+SPEED = 7
 
+move_up = False
+move_down = False
+move_left = False
+move_right = False
 
+   
+rect_w = 70
+rect_h = 70
+width_coin = 30
+height_coin = 30
 
+count_asteroid = 10
+numero_naves = 5
 
 #COLORES
 red = (255,0,0)

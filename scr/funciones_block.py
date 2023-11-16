@@ -36,24 +36,23 @@ height_coin = 20
 ancho_nave = 20
 largo_nave = 20
 
-ancho_nave_min = 40
-largo_nave_max = 40
+ancho_nave_min = 50
+largo_nave_max = 50
 
+numero_naves = 5
 speed_nave_min = 1
-speed_nave_max = 7
+speed_nave_max = 4
 #----------------------------------
-width_coin_min = 20
-height_coin_max = 40
 
-speed_x = 5
-speed_y = 5
 
-speed_coin_min = 1
-speed_coin_max = 7
+speed_x = 7
+speed_y = 7
+
+
 speed_laser = 5
 
 count_asteroid = 5
-asteroid = []
+
 
 
 def get_color(lista):
@@ -125,29 +124,34 @@ def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color 
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
 
-#-----------funcion se crea el laser ---------------
-def create_laser(mid_bottom, speed_y = 5,color=red):
-    return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
 
+#----------------------------------------------------------------------------------
 
-def create_conis(imagen=None):
-    width_coin = randint(width_coin_min,height_coin_max)
-    height_coin = randint(width_coin_min,height_coin_max)
-    return create_block(imagen,randint(0,width - width_coin),randint(-height, - height_coin),
-                        width_coin,height_coin,magenta,0,0,height_coin // 2,speed_y=randint(speed_coin_min,speed_coin_max))
-#---------------------------------------------------------------------------------
-
-def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color = (255,255,255),dir = DR,
+def creo_naves_nuevas( imagen = None,left = 0,top = 0,width = 70 ,height = 70, color = (255,255,255),dir = DR,
                  borde = 0,radio = -1,speed_x = 5, speed_y = 5):
     if imagen:
         imagen = pygame.transform.scale(imagen,(width,height))
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
+
+
+#-----------funcion se crea el laser ------------------------------------------------------------
+def create_laser(mid_bottom=0, speed_y = 5,color=red):
+        return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
+
+
+# def create_conis(imagen=None):
+#     width_coin = randint(width_coin_min,height_coin_max)
+#     height_coin = randint(width_coin_min,height_coin_max)
+#     return create_block(imagen,randint(0,width - width_coin),randint(-height, - height_coin),
+#                         width_coin,height_coin,magenta,0,0,height_coin // 2,speed_y=randint(speed_coin_min,speed_coin_max))
+#---------------------------------------------------------------------------------
+
 #----------------------------------------------------------------------------------------------------------------
 def creo_naves(imagen = None):
     ancho_nave  = randint(ancho_nave_min,largo_nave_max)
     largo_nave = randint(ancho_nave_min,largo_nave_max)
-    return create_block(imagen,randint(0,width - ancho_nave),randint(-height, - largo_nave),
+    return creo_naves_nuevas(imagen,randint(0,width - ancho_nave),randint(-height, - largo_nave),
                         ancho_nave,largo_nave,green,0,0,largo_nave // 2,speed_y=randint(speed_nave_min,speed_nave_max))
 
 def genero_naves(naves,numero_naves,imagen):
@@ -160,13 +164,13 @@ def dibujar_naves(superficie,naves):
         if nave["imagen"]:
             superficie.blit(nave["imagen"],nave["rect"])
         else:
-            pygame.draw.rect(superficie,naves["color"],naves["rect"],
+            pygame.draw.rect(superficie,nave["color"],nave["rect"],
                         nave["borde"],nave["radio"])                        
 #---------------creo nuevos asteroides--------------------------------------
-def generate_asteroid(asteroid, count_asteroid,imagen):
-    for i in range(count_asteroid):
-        asteroid.append(create_conis(imagen))
-         #asteroid.append(create_conis(imagen))
+# def generate_asteroid(asteroid, count_asteroid,imagen):
+#     for i in range(count_asteroid):
+#         asteroid.append(create_conis(imagen))
+        
 #----------------------dibujo la siupercie del asteroide--------------------
 def dibujar_asteroide(superficie,asteroid):
     for coin in asteroid:

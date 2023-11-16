@@ -1,5 +1,6 @@
 
 import pygame
+import random
 #from aleatorios import *
 from funciones_block import *
 from random import randint, randrange
@@ -27,27 +28,13 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("Primer Juego")
 
 
-
-move_up = False
-move_down = False
-move_left = False
-move_right = False
-
-   
-rect_w = 70
-rect_h = 70
-width_coin = 30
-height_coin = 30
-
-count_asteroid = 10
-numero_naves = 5
-
 # --->seteo sonidos 
-golpe_sound = pygame.mixer.Sound("./scr/sounds/ungolpe_prev.mp3")
+golpe_sound = pygame.mixer.Sound("./scr/sounds/laser.mp3")
+golpe_nave = pygame.mixer.Sound("./scr/sounds/laser3.mp3")
 round_two = pygame.mixer.Sound("./scr/sounds/round-two.mp3")
 round_three = pygame.mixer.Sound("./scr/sounds/round-three.mp3")
 game_over_sound = pygame.mixer.Sound("./scr/sounds/game-over-1-gameover.mp3")
-#game_over_2 = pygame.mixer.Sound("./scr/sounds/final_prev.mp3")
+diparo_laser = pygame.mixer.Sound("./scr/sounds/diaparo_laser.mp3")   
 background = pygame.transform.scale(pygame.image.load("./scr/images/espacio_01.jpg"),size_screen)
 #--->musica  fondo (solo 1 se permite)
 pygame.mixer.music.load("./scr/sounds/primer_sonido.mp3")
@@ -66,16 +53,17 @@ btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 500, *s
 #--->CARGA DE IMAGENES
 
 imagen_player = pygame.image.load("./scr/images/nave_1-alcon.png")
-imagen_nave = pygame.image.load("./scr/images/nave_star1.jpg")
-imagen_nave2 = pygame.image.load("./scr/images/nave_star2.jpg")
+imagen_enemiga = pygame.image.load("./scr/images/nave_enemiga.png")
+imagen_nave = pygame.image.load("./scr/images/nave_star1.png")
+imagen_nave2 = pygame.image.load("./scr/images/nave_star2.png")
 imagen_asteroide = pygame.image.load("./scr/images/asteroide_2-nuevo.png")
-imagen_asteroide2 = pygame.image.load("./scr/images/asteroide-3.png")
+# imagen_asteroide2 = pygame.image.load("./scr/images/asteroide-3.png")
 background2 = pygame.transform.scale(pygame.image.load("./scr/images/primera_imagen.jpg"),size_screen)
 # imagen_presentacion= pygame.image.load("./scr/images/fondo_pantalla.jpg")
 #-->eventos personales
-EVENT_NWE_COIN = pygame.USEREVENT + 1
+EVENT_NWE_NAVE = pygame.USEREVENT + 1
 
-pygame.time.set_timer(EVENT_NWE_COIN,3000)
+pygame.time.set_timer(EVENT_NWE_NAVE,3000)
 
 #-----------creo el bloque donde le agrego la imagen de la nave y le doy los parametros -------
 try:
@@ -83,8 +71,20 @@ try:
     rect_w,rect_h,get_color(colors),radio= 30)
     
 except pygame.error:
-    print("Error al ingresar los datos")    
+    print("Error al ingresar los datos")
+
+try:
+    block2 = create_block(imagen_enemiga,randint(0,width - rect_w),randint(0,height - rect_h),
+    rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
+    
+except pygame.error:
+    print("Error al ingresar los datos")
+
 max_contador = 0
+
+# block = create_block(imagen_nave,randint(0,width - rect_w),randint(0,height - rect_h),
+# rect_w,rect_h,get_color(colors),radio= 30)
+
 
 while True:#--> aca se reinicia el juego en un bucle
     #---> aca en este punto se reinicia el juego , en un bucle el
@@ -97,27 +97,27 @@ while True:#--> aca se reinicia el juego en un bucle
     #-----------UTILIZO try except en caso  que la funte se cargue mal o no se encuentre en el ordenador-----
     try:
         fuente = pygame.font.SysFont("MV Boli",30)
-        texto = fuente.render(f"COINS :{monedas}",True,red)
+        texto = fuente.render(f"Score :{monedas}",True,red)
         rec_texto = texto.get_rect()
         rec_texto.midtop = (width // 2 , 30)
     except pygame.error:
         print("Error Fuente no se encuentra : ")    
 
     mostrar_texto(screen,f"Lives: {lives}",fuente,(200, height -30),magenta)
-    
-    #---> creo lista de asteriodes
-    #asteroid = []
-    #generate_asteroid(asteroid,count_asteroid,imagen_asteroide)
+
+
     #--------creo las naves-------------
     naves = []
     genero_naves(naves,numero_naves,imagen_nave)
+
+    block3 = create_block(imagen_enemiga,randint(0,width - rect_w),randint(0,height - rect_h),
+    rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
 
     cont_comer = 0
 
     #-->creo una lista de laseres
     lasers = []
-
-
+    enemy_laser = []
     #--> aca lo vuelvo hacer vicible al cursos del mouse
     pygame.mouse.set_visible(True)
 
@@ -142,6 +142,7 @@ while True:#--> aca se reinicia el juego en un bucle
 
     while is_running:
 
+
         clock.tick(FPS)
         #--->detectar los eventos
         for evento in pygame.event.get():
@@ -151,12 +152,14 @@ while True:#--> aca se reinicia el juego en un bucle
             if evento.type == KEYDOWN:
                 #-->se creo el evento del disparo laser con la letra f
                 if evento.key == K_f:
-                    if rafaga:#-->aca se crea la lista de laserssssss
+                    if rafaga:#-->aca se crea la lista de laserss
                         lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
                     else:
                         if not laser:#--> aca sigue normal 
                             laser = create_laser(block["rect"].midtop,speed_laser)
-                #---> se recrea los movimientos con las teclas d / a / w / s
+                        if  playing_music:
+                            diparo_laser.play()
+#------------> se recrea los movimientos con las teclas d / a / w / s------------------------------->
                 if evento.key == K_RIGHT or evento.key == K_d:
                     move_right = True
                     move_left = False
@@ -172,23 +175,25 @@ while True:#--> aca se reinicia el juego en un bucle
                 if evento.key == K_DOWN or evento.key == K_s:
                     move_down = True
                     move_up = False
-                #--> activo los efectos dados con las teclas l /r
+#-----------------> activo los efectos dados con las teclas l /r----------------------------------->
                 if evento.key == K_l:
                     trick_slow = True
 
                 if evento.key == K_r:
                     trick_reverse = True
-                #--> aca se utiliza la letra g para la rafaga de lasers
+#-------------------------------------------------------------------------------------------------->
+#---------------> aca se utiliza la letra g para la rafaga de lasers------------------------------->
                 if evento.key == K_g:
                     rafaga= True
-                #----> en este evento utilizo la M del teclado para poner un pause el sonido del juego
+  
+#--------------> en este evento utilizo la M del teclado para poner un pause el sonido del juego
                 if evento.key == K_m:
                     if playing_music:
                         pygame.mixer.music.pause()
                     else:
                         pygame.mixer.music.unpause()
                     playing_music = not playing_music
-                #------>aca se pausa el juego
+#------------->aca se pausa el juego--------------------------------------------------------------->
                 if evento.key == K_p:
                     if playing_music:
                         pygame.mixer.music.pause()
@@ -197,10 +202,7 @@ while True:#--> aca se reinicia el juego en un bucle
                     if playing_music:
                         wait_user()
                         pygame.mixer.music.unpause()
-                    
-
-
-           
+#-------------------------------------------------------------------------------------------------->                    
             if evento.type == KEYUP:
                 if evento.key == K_RIGHT:
                         move_right = False
@@ -218,19 +220,25 @@ while True:#--> aca se reinicia el juego en un bucle
                  #--> aca se utiliza la letra g para la rafaga de lasers(queda en FALSE)
                 if evento.key == K_g:
                     rafaga = False
-                
-            if evento.type == EVENT_NWE_COIN:
-                asteroid.append(create_block(imagen_asteroide,randint(0,width - width_coin),randint(0,height - height_coin),
-                                        width_coin,height_coin,green,0,0,height_coin // 2))    
+    
+            if evento.type == EVENT_NWE_NAVE:
+                naves.append(creo_naves_nuevas(imagen_nave,randint(0,width - ancho_nave),randint(0,height - largo_nave),
+                                               ancho_nave,largo_nave,green,largo_nave // 2))
+
+            
 
             if evento.type == MOUSEBUTTONDOWN:
                 #-->aca se vuelve a utilizar el laser ,con el mouse
                 if evento.button == 1:
                     if rafaga:
                         lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
+                        if playing_music:
+                            diparo_laser.play()
                     else:    
                         if not laser:
                             laser = create_laser(block["rect"].midtop,speed_laser)
+                        if playing_music:
+                            diparo_laser.play()
                 if evento.button == 3:
                     block["rect"].center = center_scree
         #----> aca es cuando el mouse se mueva por l apantalla del juego
@@ -239,43 +247,38 @@ while True:#--> aca se reinicia el juego en un bucle
                 
         #----> ACTUALIZO LOS ELEMNTOS------------------->
 
-    
 
-        #MUEVO SU BLOQUE DE ACUERDO A SU DRIRECCION
-    
-        if move_up and block["rect"].top >= 0:
-            #-->muevo arriba
-            block["rect"].top -= SPEED
-        if move_down and block["rect"].bottom <= height:
-            #--> muevo abajo
-            block["rect"].top += SPEED
-        if move_left and block["rect"].left >= 0:
-            #--->muevo izquierda
-            block["rect"].left -= SPEED
-        if move_right and block["rect"].right <= width:
-            #-->muevo derecha
-            block["rect"].left += SPEED
-
-
+        #-------------- movimientos  con las teclas de las flecha---------------------->
+            if move_up and block["rect"].top >= 0:
+                #-->muevo arriba
+                block["rect"].top -= SPEED
+            if move_down and block["rect"].bottom <= height:
+                #--> muevo abajo
+                block["rect"].top += SPEED
+            if move_left and block["rect"].left >= 0:
+                #--->muevo izquierda
+                block["rect"].left -= SPEED
+            if move_right and block["rect"].right <= width:
+                #-->muevo derecha
+                block["rect"].left += SPEED
         pygame.mouse.set_pos(block["rect"].centerx,block["rect"].centery)
-    
 
-        #--->muevo los asteroides en caida
-        for coin in naves:
+        #--->muevo las naves en caida
+        for nave in naves:
             #-->movimiento normal si 
             if not trick_reverse and not trick_slow: #--> aca no pasa nada el movimiento es normal
-                if coin["rect"].top <= height:
-                    coin["rect"].move_ip(0,coin["speed_y"])
+                if nave["rect"].top <= height:
+                    nave["rect"].move_ip(0,nave["speed_y"])
                 else:
-                    coin["rect"].bottom = 0
+                    nave["rect"].bottom = 0
             elif trick_slow:#--> determino la velocidad mas lento con la letra l
-                if coin["rect"].top <= height:
-                    coin["rect"].move_ip(0,1)
+                if nave["rect"].top <= height:
+                    nave["rect"].move_ip(0,1)
                 else:
-                    coin["rect"].bottom = 0
+                    nave["rect"].bottom = 0
             elif trick_reverse:#-->aca los pongo en reversa a los asteroides en caso de apretar la letra r
-                if coin["rect"].top <= height:
-                    coin["rect"].move_ip(0,- coin["speed_y"])
+                if nave["rect"].top <= height:
+                    nave["rect"].move_ip(0,- nave["speed_y"])
     
             #--->creo el movimiento del laser 
             #----> si existe el laser ?
@@ -303,20 +306,18 @@ while True:#--> aca se reinicia el juego en un bucle
                     if detectar_colision_circulo(coin["rect"],laser["rect"]):
                         naves.remove(coin)
                         monedas += 1 
-                        texto = fuente.render(f"COINS :{monedas}",True,red)
+                        texto = fuente.render(f"Score :{monedas}",True,red)
                         rec_texto = texto.get_rect()
                         rec_texto.midtop = (width // 2,30)
                         cont_comer = 10
                         colision = True
                         if playing_music:
                            golpe_sound.play()
-                        
+
                         if len(naves) == 0:
-                            #generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
                             genero_naves(naves,numero_naves,imagen_nave2)
                             round_two.play()
                         elif len(naves) == 5:
-                            #generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
                             genero_naves(naves,numero_naves,imagen_nave2)
                             round_three.play()
                 if colision:
@@ -325,29 +326,29 @@ while True:#--> aca se reinicia el juego en un bucle
             if laser:
                     #-->de detecta colocion de la nave con asteroides
                 colision  = False
-                for coin in naves[:]:       
-                    if detectar_colision_circulo(coin["rect"],laser["rect"]):
-                        naves.remove(coin)
+                for nave in naves[:]:
+                    if detectar_colision_circulo(nave["rect"],laser["rect"]):
+                        naves.remove(nave)
                         monedas += 1 
-                        texto = fuente.render(f"COINS :{monedas}",True,red)
+                        texto = fuente.render(f"Score :{monedas}",True,red)
                         rec_texto = texto.get_rect()
                         rec_texto.midtop = (width // 2,30)
                         cont_comer = 10
                         colision = True
                         if playing_music:
-                           golpe_sound.play()
+                           golpe_nave.play()
                         
                         if len(naves) == 0:
                             genero_naves(naves,numero_naves,imagen_nave2)
                             round_two.play()
-                        elif len(coin) == 0:
-                             round_three.play()
+                        # elif len(coin) == 0:
+                        #      round_three.play()
                 if colision:
                     laser = None
-
-        for coin in naves[:]:       
-                if detectar_colision_circulo(coin["rect"],block["rect"]):
-                    naves.remove(coin)
+                #-----detecto colicion y descuento las vidas
+        for nave in naves[:]:
+                if detectar_colision_circulo(nave["rect"],block["rect"]):
+                    naves.remove(nave)
                     if lives > 1:
                         lives -= 1
                     else:
@@ -355,22 +356,18 @@ while True:#--> aca se reinicia el juego en un bucle
                         is_running = False
                         cont_comer = 10
                     if playing_music:
-                       golpe_sound.play()
-                
-                # if len(asteroid) == 0:
-                #     generate_asteroid(asteroid,count_asteroid,imagen_asteroide2)
-                #     round_two.play()
-                # elif len(coin) == 0:
-                #     round_three.play()
-            
-        if cont_comer >= 0:
-            cont_comer -= 1
-            block["rect"].width = rect_w + 5
-            block["rect"].height = rect_h + 5
-        else:
-            block["rect"].width = rect_w
-            block["rect"].height = rect_h
+                       golpe_nave.play()
 
+#------------------------------------------------------------------------------            
+        if cont_comer >= 10:
+            cont_comer -= 1
+            laser = create_laser(block2["rect"].midbottom,speed_laser)
+            block2["rect"].width = rect_w + 5
+            block2["rect"].height = rect_h + 5
+        else:
+            block2["rect"].width = rect_w
+            block2["rect"].height = rect_h
+#------------------------------------------------------------------------------>
 
         #---> dibujar pantalla-------------------->
         #screen.fill(black)
@@ -381,6 +378,10 @@ while True:#--> aca se reinicia el juego en un bucle
             
         #pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
         screen.blit(block["imagen"],block["rect"])
+
+        screen.blit(block2["imagen"],block2["rect"])
+
+        screen.blit(block3["imagen"],block3["rect"])
         #-->creo el lasery creo la rafaga de lasers
         if rafaga:
             for laser in lasers:
@@ -388,10 +389,10 @@ while True:#--> aca se reinicia el juego en un bucle
         else:
             if laser:
                 pygame.draw.rect(screen,laser["color"],laser["rect"])
-        
-
-        screen.blit(texto,rec_texto) 
-        #---> aca mostramos las vidas que tenemos al comenzar
+                
+        if enemy_laser:
+            pygame.Rect(enemy_laser.x,enemy_laser.y,width,height)
+       #---> aca mostramos las vidas que tenemos al comenzar
         mostrar_texto(screen,f"Lives: {lives}",fuente,(100, height -30),magenta)
        
         #----->ACTUALIZO PANTALLA----------------->
