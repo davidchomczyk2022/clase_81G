@@ -19,7 +19,7 @@ def get_new_color():
     g = randrange(256)
     b = randrange(256)
     return (r,g,b)
-
+# move_right,move_left,move_up,move_left = False
 
 UR = 9
 DR = 3
@@ -125,7 +125,7 @@ def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color 
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
 
 
-#----------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
 
 def creo_naves_nuevas( imagen = None,left = 0,top = 0,width = 70 ,height = 70, color = (255,255,255),dir = DR,
                  borde = 0,radio = -1,speed_x = 5, speed_y = 5):
@@ -135,7 +135,7 @@ def creo_naves_nuevas( imagen = None,left = 0,top = 0,width = 70 ,height = 70, c
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
 
 
-#-----------funcion se crea el laser ------------------------------------------------------------
+#-----------funcion se crea el laser ------------------------------------------------------------------------
 def create_laser(mid_bottom=0, speed_y = 5,color=red):
         return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
 
@@ -213,6 +213,28 @@ def crear_boton(screen,texto,bg_color,bg_color_hover,rect_boton:pygame.Rect,font
         pygame.draw.rect(screen,bg_color,rect_boton,border_radius=5)         
     
     mostrar_texto_centrado(screen,texto,*rect_boton.center,font_color,fuente)
+
+def reproducir_sonido(golpe_sound):
+    golpe_sound.play()
+
+def control_eventos(event):
+    global move_right,move_left,move_up,move_left
+    if event.type == pygame.KEYDOWN:
+        if event.key == K_RIGHT or event.key == K_d:
+            move_right = True
+            move_left = False
+    
+        if event.key == K_LEFT or event.key == K_a:
+            move_left = True
+            move_right = False
+
+        if event.key == K_UP or event.key == K_w:
+            move_up = True
+            move_down = False
+
+        if event.key == K_DOWN or event.key == K_s:
+            move_down = True
+            move_up = False
 
 # for i in range(count_conis):
 #     coins.append(create_block(randint(0,width - width_coin),randint(0,height - height_coin),width_coin,height_coin,yelloy,0,0,height_coin // 2))

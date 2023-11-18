@@ -2,6 +2,8 @@
 
 width = 1100
 height = 600
+width_x = 300
+height_y = 300
 size_screen = (width,height)
 origin = (0,0)
 center_scree = (width // 2, height // 2)
@@ -20,10 +22,8 @@ move_right = False
    
 rect_w = 70
 rect_h = 70
-width_coin = 30
-height_coin = 30
 
-count_asteroid = 10
+
 numero_naves = 5
 
 #COLORES

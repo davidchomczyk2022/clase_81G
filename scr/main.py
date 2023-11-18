@@ -53,6 +53,11 @@ btn_comenzar= pygame.Rect(screen.get_width() // 2 - size_button[0] // 2, 500, *s
 #--->CARGA DE IMAGENES
 
 imagen_player = pygame.image.load("./scr/images/nave_1-alcon.png")
+imagen_icono = pygame.image.load("./scr/images/icono_juego.png")
+imagen_enemiga1 = pygame.image.load("./scr/images/nave_enemiga1.png")  
+imagen_enemiga2 = pygame.image.load("./scr/images/nave_enemiga2.png") 
+imagen_enemiga3 = pygame.image.load("./scr/images/nave_enemiga3.png") 
+imagen_enemiga4 = pygame.image.load("./scr/images/nave_enemiga4.png") 
 imagen_enemiga = pygame.image.load("./scr/images/nave_enemiga.png")
 imagen_nave = pygame.image.load("./scr/images/nave_star1.png")
 imagen_nave2 = pygame.image.load("./scr/images/nave_star2.png")
@@ -64,40 +69,43 @@ background2 = pygame.transform.scale(pygame.image.load("./scr/images/primera_ima
 EVENT_NWE_NAVE = pygame.USEREVENT + 1
 
 pygame.time.set_timer(EVENT_NWE_NAVE,3000)
+pygame.display.set_icon(imagen_icono)
 
 #-----------creo el bloque donde le agrego la imagen de la nave y le doy los parametros -------
 try:
-    block = create_block(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),
+    block = creo_naves_nuevas(imagen_player,randint(0,width - rect_w),randint(0,height - rect_h),
     rect_w,rect_h,get_color(colors),radio= 30)
     
 except pygame.error:
     print("Error al ingresar los datos")
 
 try:
-    block2 = create_block(imagen_enemiga,randint(0,width - rect_w),randint(0,height - rect_h),
+    block2 = creo_naves_nuevas(imagen_enemiga2,(width - rect_w),(50),
     rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
     
 except pygame.error:
     print("Error al ingresar los datos")
 
+block3 = creo_naves_nuevas(imagen_enemiga3,(width - rect_w),(50),
+rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
+
+block4 = creo_naves_nuevas(imagen_enemiga4,(width - rect_w),(50),
+rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
+
 max_contador = 0
-
-# block = create_block(imagen_nave,randint(0,width - rect_w),randint(0,height - rect_h),
-# rect_w,rect_h,get_color(colors),radio= 30)
-
 
 while True:#--> aca se reinicia el juego en un bucle
     #---> aca en este punto se reinicia el juego , en un bucle el
     #--> score empieza desde cero
     #---> extablesco fuente
     laser = None
-    monedas = 0
+    score = 0
     rafaga = False
     lives = 3
     #-----------UTILIZO try except en caso  que la funte se cargue mal o no se encuentre en el ordenador-----
     try:
         fuente = pygame.font.SysFont("MV Boli",30)
-        texto = fuente.render(f"Score :{monedas}",True,red)
+        texto = fuente.render(f"Score :{score}",True,red)
         rec_texto = texto.get_rect()
         rec_texto.midtop = (width // 2 , 30)
     except pygame.error:
@@ -110,8 +118,6 @@ while True:#--> aca se reinicia el juego en un bucle
     naves = []
     genero_naves(naves,numero_naves,imagen_nave)
 
-    block3 = create_block(imagen_enemiga,randint(0,width - rect_w),randint(0,height - rect_h),
-    rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
 
     cont_comer = 0
 
@@ -136,12 +142,11 @@ while True:#--> aca se reinicia el juego en un bucle
 
     trick_reverse = False
     trick_slow = False
-    
 
+  
     is_running = True
 
     while is_running:
-
 
         clock.tick(FPS)
         #--->detectar los eventos
@@ -305,8 +310,8 @@ while True:#--> aca se reinicia el juego en un bucle
                 for coin in naves[:]:
                     if detectar_colision_circulo(coin["rect"],laser["rect"]):
                         naves.remove(coin)
-                        monedas += 1 
-                        texto = fuente.render(f"Score :{monedas}",True,red)
+                        score += 1 
+                        texto = fuente.render(f"Score :{score}",True,red)
                         rec_texto = texto.get_rect()
                         rec_texto.midtop = (width // 2,30)
                         cont_comer = 10
@@ -329,8 +334,8 @@ while True:#--> aca se reinicia el juego en un bucle
                 for nave in naves[:]:
                     if detectar_colision_circulo(nave["rect"],laser["rect"]):
                         naves.remove(nave)
-                        monedas += 1 
-                        texto = fuente.render(f"Score :{monedas}",True,red)
+                        score += 1 
+                        texto = fuente.render(f"Score :{score}",True,red)
                         rec_texto = texto.get_rect()
                         rec_texto.midtop = (width // 2,30)
                         cont_comer = 10
@@ -378,10 +383,9 @@ while True:#--> aca se reinicia el juego en un bucle
             
         #pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
         screen.blit(block["imagen"],block["rect"])
-
         screen.blit(block2["imagen"],block2["rect"])
-
         screen.blit(block3["imagen"],block3["rect"])
+        screen.blit(block4["imagen"],block4["rect"])
         #-->creo el lasery creo la rafaga de lasers
         if rafaga:
             for laser in lasers:
@@ -391,7 +395,7 @@ while True:#--> aca se reinicia el juego en un bucle
                 pygame.draw.rect(screen,laser["color"],laser["rect"])
                 
         if enemy_laser:
-            pygame.Rect(enemy_laser.x,enemy_laser.y,width,height)
+            pygame.Rect(enemy_laser.y,enemy_laser.y,width,height)
        #---> aca mostramos las vidas que tenemos al comenzar
         mostrar_texto(screen,f"Lives: {lives}",fuente,(100, height -30),magenta)
        
@@ -399,14 +403,14 @@ while True:#--> aca se reinicia el juego en un bucle
         pygame.display.flip()
 
 
-    if monedas > max_contador:
-        max_contador = monedas
+    if score > max_contador:
+        max_contador = score
 
     #--> aca doy los mensajes del score el juego termino y una tecla precionar para continuar
     pygame.mixer.music.stop()
     game_over_sound.play()
     screen.fill(black)
-    mostrar_texto(screen,f"Score:{monedas}",fuente,(140, 20),green)
+    mostrar_texto(screen,f"Score:{score}",fuente,(140, 20),green)
     mostrar_texto(screen,f"Top Score:{max_contador}",fuente,(width - 150, 20),green)
     mostrar_texto(screen,"Game Over",fuente,center_scree,red)
     mostrar_texto(screen,"Presione una tecla para comenzar....",fuente,(width //2 , height - 50 ),blue)
