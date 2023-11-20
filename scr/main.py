@@ -63,12 +63,13 @@ imagen_nave = pygame.image.load("./scr/images/nave_star1.png")
 imagen_nave2 = pygame.image.load("./scr/images/nave_star2.png")
 imagen_asteroide = pygame.image.load("./scr/images/asteroide_2-nuevo.png")
 # imagen_asteroide2 = pygame.image.load("./scr/images/asteroide-3.png")
-background2 = pygame.transform.scale(pygame.image.load("./scr/images/primera_imagen.jpg"),size_screen)
+background2 = pygame.transform.scale(pygame.image.load("./scr/images/fondo_2.jpg"),size_screen)
 # imagen_presentacion= pygame.image.load("./scr/images/fondo_pantalla.jpg")
 #-->eventos personales
 EVENT_NWE_NAVE = pygame.USEREVENT + 1
 
-pygame.time.set_timer(EVENT_NWE_NAVE,3000)
+pygame.time.set_timer(EVENT_NWE_NAVE,4000)
+pygame.time.set_timer(pygame.USEREVENT,1000)
 pygame.display.set_icon(imagen_icono)
 
 #-----------creo el bloque donde le agrego la imagen de la nave y le doy los parametros -------
@@ -80,19 +81,27 @@ except pygame.error:
     print("Error al ingresar los datos")
 
 try:
-    block2 = creo_naves_nuevas(imagen_enemiga2,(width - rect_w),(50),
+    block2 = creo_naves_nuevas(imagen_enemiga2,(width - 300),(100),
     rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
     
 except pygame.error:
     print("Error al ingresar los datos")
 
-block3 = creo_naves_nuevas(imagen_enemiga3,(width - rect_w),(50),
+
+block3 = creo_naves_nuevas(imagen_enemiga3,(height - rect_h),(100),
 rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
 
-block4 = creo_naves_nuevas(imagen_enemiga4,(width - rect_w),(50),
+block4 = creo_naves_nuevas(imagen_enemiga4,(height // 2),(100),
 rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10)
+
+
+velocidad_disparos = 100
+disparo = 0
+disparos = []
 
 max_contador = 0
+tiempo_ultimo_disparo = pygame.time.get_ticks()
+intervalo_disparo = 5000 # milisegundos = 2  segundos 
 
 while True:#--> aca se reinicia el juego en un bucle
     #---> aca en este punto se reinicia el juego , en un bucle el
@@ -102,6 +111,8 @@ while True:#--> aca se reinicia el juego en un bucle
     score = 0
     rafaga = False
     lives = 3
+    velocidad = 50
+    direccion = 1
     #-----------UTILIZO try except en caso  que la funte se cargue mal o no se encuentre en el ordenador-----
     try:
         fuente = pygame.font.SysFont("MV Boli",30)
@@ -128,7 +139,7 @@ while True:#--> aca se reinicia el juego en un bucle
     pygame.mouse.set_visible(True)
 
     screen.blit(background2,origin)
-    mostrar_texto(screen,"Interestelar",fuente,(width //2 ,50 ),green)
+    mostrar_texto(screen,"Estrella de la Muerte",fuente,(width //2 ,50 ),green)
 
    #-->creo el boton,, lo muestro en su estado final
    
@@ -150,13 +161,41 @@ while True:#--> aca se reinicia el juego en un bucle
 
         clock.tick(FPS)
         #--->detectar los eventos
-        for evento in pygame.event.get():
-            if evento.type == QUIT:
+        for event in pygame.event.get():
+            if event.type == QUIT:
                 is_running = False
 
-            if evento.type == KEYDOWN:
+            elif event.type == pygame.USEREVENT:
+                block2["rect"].left += velocidad * direccion
+                if block2["rect"].left <= 0 or  block2["rect"].left >= width - 100:
+                    direccion *= -1
+                block3["rect"].left += velocidad * direccion
+                if block3["rect"].left <= 0 or  block3["rect"].left >= width :
+                    direccion *= -1
+                block4["rect"].left  += velocidad * direccion
+                if block4["rect"].left <= 0 or  block4["rect"].left >= width :
+                    direccion *= -1
+
+
+                tiempo_actual = pygame.time.get_ticks()
+                if tiempo_actual -tiempo_ultimo_disparo > intervalo_disparo:
+                    for blocks in [block2,block3,block4]:
+                        x_disparo = blocks["rect"].midbottom + blocks.width // 2
+                        y_disparo = blocks["rect"].midbottom  + blocks.height
+
+                        disparos.append(pygame.Rect(x_disparo,y_disparo,10,15)) 
+                    tiempo_ultimo_disparo = tiempo_actual
+
+            #----------mover los disparos   hacia abajo
+                    for disparo in disparos:
+                        disparo.y += velocidad_disparos       
+            #---------elimino los disparos q salen de la pantalla--------
+                    disparos = [disparo for disparo in disparos if disparo.y < height]   
+
+
+            if event.type == KEYDOWN:
                 #-->se creo el evento del disparo laser con la letra f
-                if evento.key == K_f:
+                if event.key == K_f:
                     if rafaga:#-->aca se crea la lista de laserss
                         lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
                     else:
@@ -164,42 +203,45 @@ while True:#--> aca se reinicia el juego en un bucle
                             laser = create_laser(block["rect"].midtop,speed_laser)
                         if  playing_music:
                             diparo_laser.play()
+                  
+          
 #------------> se recrea los movimientos con las teclas d / a / w / s------------------------------->
-                if evento.key == K_RIGHT or evento.key == K_d:
+  # control_eventos(event)
+                if event.key == K_RIGHT or event.key == K_d:
                     move_right = True
                     move_left = False
 
-                if evento.key == K_LEFT or evento.key == K_a:
+                if event.key == K_LEFT or event.key == K_a:
                     move_left = True
                     move_right = False
 
-                if evento.key == K_UP or evento.key == K_w:
+                if event.key == K_UP or event.key == K_w:
                     move_up = True
                     move_down = False
 
-                if evento.key == K_DOWN or evento.key == K_s:
+                if event.key == K_DOWN or event.key == K_s:
                     move_down = True
                     move_up = False
 #-----------------> activo los efectos dados con las teclas l /r----------------------------------->
-                if evento.key == K_l:
+                if event.key == K_l:
                     trick_slow = True
 
-                if evento.key == K_r:
+                if event.key == K_r:
                     trick_reverse = True
 #-------------------------------------------------------------------------------------------------->
 #---------------> aca se utiliza la letra g para la rafaga de lasers------------------------------->
-                if evento.key == K_g:
+                if event.key == K_g:
                     rafaga= True
   
 #--------------> en este evento utilizo la M del teclado para poner un pause el sonido del juego
-                if evento.key == K_m:
+                if event.key == K_m:
                     if playing_music:
                         pygame.mixer.music.pause()
                     else:
                         pygame.mixer.music.unpause()
                     playing_music = not playing_music
 #------------->aca se pausa el juego--------------------------------------------------------------->
-                if evento.key == K_p:
+                if event.key == K_p:
                     if playing_music:
                         pygame.mixer.music.pause()
                         mostrar_texto(screen,"PAUSA",fuente,center_scree,red,black)
@@ -208,33 +250,32 @@ while True:#--> aca se reinicia el juego en un bucle
                         wait_user()
                         pygame.mixer.music.unpause()
 #-------------------------------------------------------------------------------------------------->                    
-            if evento.type == KEYUP:
-                if evento.key == K_RIGHT:
+            if event.type == KEYUP:
+                if event.key == K_RIGHT:
                         move_right = False
-                if evento.key == K_LEFT:
+                if event.key == K_LEFT:
                         move_left = False
-                if evento.key == K_UP:
+                if event.key == K_UP:
                         move_up = False
-                if evento.key == K_DOWN:
+                if event.key == K_DOWN:
                         move_down = False
                 #-->desactivo las teclas el efecto / dado
-                if evento.key == K_l:
+                if event.key == K_l:
                     trick_slow = False
-                if evento.key == K_r:
+                if event.key == K_r:
                     trick_reverse = False
                  #--> aca se utiliza la letra g para la rafaga de lasers(queda en FALSE)
-                if evento.key == K_g:
+                if event.key == K_g:
                     rafaga = False
     
-            if evento.type == EVENT_NWE_NAVE:
+            if event.type == EVENT_NWE_NAVE:
                 naves.append(creo_naves_nuevas(imagen_nave,randint(0,width - ancho_nave),randint(0,height - largo_nave),
                                                ancho_nave,largo_nave,green,largo_nave // 2))
 
-            
-
-            if evento.type == MOUSEBUTTONDOWN:
+#-----------------------------------------------------------------------------------------------------
+            if event.type == MOUSEBUTTONDOWN:
                 #-->aca se vuelve a utilizar el laser ,con el mouse
-                if evento.button == 1:
+                if event.button == 1:
                     if rafaga:
                         lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
                         if playing_music:
@@ -244,14 +285,13 @@ while True:#--> aca se reinicia el juego en un bucle
                             laser = create_laser(block["rect"].midtop,speed_laser)
                         if playing_music:
                             diparo_laser.play()
-                if evento.button == 3:
+                if event.button == 3:
                     block["rect"].center = center_scree
         #----> aca es cuando el mouse se mueva por l apantalla del juego
-            if evento.type == MOUSEMOTION:
-                block["rect"].center = evento.pos
+            if event.type == MOUSEMOTION:
+                block["rect"].center = event.pos
                 
         #----> ACTUALIZO LOS ELEMNTOS------------------->
-
 
         #-------------- movimientos  con las teclas de las flecha---------------------->
             if move_up and block["rect"].top >= 0:
@@ -366,11 +406,11 @@ while True:#--> aca se reinicia el juego en un bucle
 #------------------------------------------------------------------------------            
         if cont_comer >= 10:
             cont_comer -= 1
-            laser = create_laser(block2["rect"].midbottom,speed_laser)
-            block2["rect"].width = rect_w + 5
+            laser = create_laser(block2["rect"].midtop,speed_laser)
+            #block2["rect"].width = rect_w + 5
             block2["rect"].height = rect_h + 5
         else:
-            block2["rect"].width = rect_w
+            #block2["rect"].width = rect_w
             block2["rect"].height = rect_h
 #------------------------------------------------------------------------------>
 
@@ -393,9 +433,9 @@ while True:#--> aca se reinicia el juego en un bucle
         else:
             if laser:
                 pygame.draw.rect(screen,laser["color"],laser["rect"])
-                
-        if enemy_laser:
-            pygame.Rect(enemy_laser.y,enemy_laser.y,width,height)
+        for disparo in disparos:
+            pygame.draw.rect(screen,red,disparo)        
+
        #---> aca mostramos las vidas que tenemos al comenzar
         mostrar_texto(screen,f"Lives: {lives}",fuente,(100, height -30),magenta)
        

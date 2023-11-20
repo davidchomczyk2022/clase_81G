@@ -27,10 +27,9 @@ DL = 1
 UL = 7
 direcciones = (UR,DR,DL,UL)
 screen = pygame.display.set_mode(size_screen)
-rect_w = 40
-rect_h = 40
-width_coin = 20
-height_coin = 20
+rect_w = 100
+rect_h = 100
+
 
 #--> dimenciones de las nave---
 ancho_nave = 20
@@ -124,6 +123,10 @@ def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color 
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
 
+def naves_enemigas(imagen = None, width = 50 , height = 50):
+    if imagen:
+     imagen = pygame.transform.scale(imagen,(width,height))
+     return{"rect":(width,height),"imagen":imagen}
 
 #---------------------------------------------------------------------------------------------------------
 
@@ -182,7 +185,7 @@ def dibujar_asteroide(superficie,asteroid):
             
 #-----> creo boton  y agreago la funte ala surfase--------------
 def crear_boton_old(texto,size,coordenada,color,color_click,font_color):
-   # fuente = pygame.font.Font(None,size[1] - 6)
+# fuente = pygame.font.Font(None,size[1] - 6)
     fuente = pygame.font.SysFont(None,32)
     boton = pygame.Surface(size)
     sup_texto = fuente.render(texto,True,font_color)
@@ -218,24 +221,23 @@ def reproducir_sonido(golpe_sound):
     golpe_sound.play()
 
 def control_eventos(event):
-    global move_right,move_left,move_up,move_left
-    if event.type == pygame.KEYDOWN:
-        if event.key == K_RIGHT or event.key == K_d:
-            move_right = True
-            move_left = False
-    
-        if event.key == K_LEFT or event.key == K_a:
-            move_left = True
-            move_right = False
+    if event.key == K_RIGHT or event.key == K_d:
+        move_right = True
+        move_left = False
 
-        if event.key == K_UP or event.key == K_w:
-            move_up = True
-            move_down = False
+    if event.key == K_LEFT or event.key == K_a:
+        move_left = True
+        move_right = False
 
-        if event.key == K_DOWN or event.key == K_s:
-            move_down = True
-            move_up = False
+    if event.key == K_UP or event.key == K_w:
+        move_up = True
+        move_down = False
 
+    if event.key == K_DOWN or event.key == K_s:
+        move_down = True
+        move_up = False
+
+    return move_right, move_left, move_up, move_down
 # for i in range(count_conis):
 #     coins.append(create_block(randint(0,width - width_coin),randint(0,height - height_coin),width_coin,height_coin,yelloy,0,0,height_coin // 2))
 

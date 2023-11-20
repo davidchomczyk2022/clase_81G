@@ -19,7 +19,7 @@ move_down = False
 move_left = False
 move_right = False
 
-   
+#----medidas de las naves ------
 rect_w = 70
 rect_h = 70
 
