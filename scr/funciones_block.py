@@ -131,11 +131,11 @@ def naves_enemigas(imagen = None, width = 50 , height = 50):
 #---------------------------------------------------------------------------------------------------------
 
 def creo_naves_nuevas( imagen = None,left = 0,top = 0,width = 70 ,height = 70, color = (255,255,255),dir = DR,
-                 borde = 0,radio = -1,speed_x = 5, speed_y = 5):
+                 borde = 0,radio = -1,speed_x = 5, speed_y = 5,rebote = True,bajando=True):
     if imagen:
         imagen = pygame.transform.scale(imagen,(width,height))
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
-            "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
+            "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen,"rebote":rebote,"bajando":bajando}
 
 
 #-----------funcion se crea el laser ------------------------------------------------------------------------
@@ -149,7 +149,17 @@ def create_laser(mid_bottom=0, speed_y = 5,color=red):
 #     return create_block(imagen,randint(0,width - width_coin),randint(-height, - height_coin),
 #                         width_coin,height_coin,magenta,0,0,height_coin // 2,speed_y=randint(speed_coin_min,speed_coin_max))
 #---------------------------------------------------------------------------------
-
+def rebote_creado(block,velocidad,width):
+    if block["rebote"]:
+        if block["rect"].right <= width - 50:
+            block["rect"].left += velocidad
+        else:
+            block["rebote"] = not block["rebote"]
+    else:
+        if block["rect"].left >= 0 + 50:
+            block["rect"].left -= velocidad
+        else:
+            block["rebote"] = not block["rebote"]      
 #----------------------------------------------------------------------------------------------------------------
 def creo_naves(imagen = None):
     ancho_nave  = randint(ancho_nave_min,largo_nave_max)
@@ -169,10 +179,8 @@ def dibujar_naves(superficie,naves):
         else:
             pygame.draw.rect(superficie,nave["color"],nave["rect"],
                         nave["borde"],nave["radio"])                        
-#---------------creo nuevos asteroides--------------------------------------
-# def generate_asteroid(asteroid, count_asteroid,imagen):
-#     for i in range(count_asteroid):
-#         asteroid.append(create_conis(imagen))
+#-------------------------------------------------------------
+
         
 #----------------------dibujo la siupercie del asteroide--------------------
 def dibujar_asteroide(superficie,asteroid):
@@ -206,7 +214,7 @@ def mostrar_texto_centrado(screen,texto,center_x,center_y,color,fuente):
     #rect_text_saludar.center = rect_saludar.center
     screen.blit(render,rect_text)
 
-
+#----------------------------------------------------------------------------------------------------------------------
 def crear_boton(screen,texto,bg_color,bg_color_hover,rect_boton:pygame.Rect,font_color,font_color_hover,
         fuente = pygame.font.SysFont(None,36)):
     if rect_boton.collidepoint(pygame.mouse.get_pos()):
@@ -214,30 +222,58 @@ def crear_boton(screen,texto,bg_color,bg_color_hover,rect_boton:pygame.Rect,font
         mostrar_texto_centrado(screen,texto,*rect_boton.center,font_color_hover,fuente)
     else:
         pygame.draw.rect(screen,bg_color,rect_boton,border_radius=5)         
-    
+#------------------------------------------------------------------------------------------------------------------------------- 
     mostrar_texto_centrado(screen,texto,*rect_boton.center,font_color,fuente)
-
+#-----------------------------------------------------------------------------------------------
 def reproducir_sonido(golpe_sound):
     golpe_sound.play()
-
+#--------------------------------------------------------------------------------------------------------------------------- 
 def control_eventos(event):
     if event.key == K_RIGHT or event.key == K_d:
         move_right = True
         move_left = False
 
-    if event.key == K_LEFT or event.key == K_a:
+    elif event.key == K_LEFT or event.key == K_a:
         move_left = True
         move_right = False
 
-    if event.key == K_UP or event.key == K_w:
+    elif event.key == K_UP or event.key == K_w:
         move_up = True
         move_down = False
 
-    if event.key == K_DOWN or event.key == K_s:
+    elif event.key == K_DOWN or event.key == K_s:
         move_down = True
         move_up = False
 
-    return move_right, move_left, move_up, move_down
+    return move_right,move_left,move_up,move_down
+    
+
+
+    #--->creo el movimiento del laser 
+    #----> si existe el laser ?
+    #-->creo la rafaga y si existe disparo la rafaga y si NO disparo norma
+def laser_movimiento(laser,key:str,lasers,velo:str,rafaga):
+    if rafaga:
+        for laser in lasers[:]:
+            if laser[key].bottom >= 0:
+                laser[key].move_ip(0, -laser[velo])
+            else:
+                lasers.remove(laser)
+    else:
+        if laser:
+            if laser[key].bottom >= 0:
+                laser[key].move_ip(0, -laser[velo])
+            else:
+                laser = None
+
+def mover_lasers(key:str,lasers,velo:str):
+    for laser in lasers[:]:
+        if laser[key].bottom >= 0:
+            laser[key].move_ip(0, -laser[velo])
+        else:
+            lasers.remove(laser)                   
+#---------------------------------------------------------------
+
 # for i in range(count_conis):
 #     coins.append(create_block(randint(0,width - width_coin),randint(0,height - height_coin),width_coin,height_coin,yelloy,0,0,height_coin // 2))
 

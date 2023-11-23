@@ -20,7 +20,6 @@ def detectar_colision_circulo(rect_1,rect_2):
     
 
 
-
 def detectar_colision(rect_1, rect_2):
  for r1,r2 in [(rect_1,rect_2),(rect_2,rect_1)]:
         return punto_en_rectangulo(r1.topleft,r2) or \

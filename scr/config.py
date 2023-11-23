@@ -11,8 +11,8 @@ center_scree = (width // 2, height // 2)
 center_screen_x = width // 2
 center_screen_y = height // 2
 
-FPS = 50
-SPEED = 7
+FPS = 60
+SPEED = 9
 
 move_up = False
 move_down = False
