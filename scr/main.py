@@ -99,7 +99,7 @@ rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10,rebote=True,baj
 velocidad_disparos = 100
 disparo = 0
 disparos = []
-
+# enemy_laser = []
 max_contador = 0
 tiempo_ultimo_disparo = pygame.time.get_ticks()
 intervalo_disparo = 2000 # milisegundos = 2  segundos 
@@ -137,7 +137,7 @@ while True:#--> aca se reinicia el juego en un bucle
 
     #-->creo una lista de laseres
     lasers = []
-    enemy_laser = []
+    
     #--> aca lo vuelvo hacer vicible al cursos del mouse
     pygame.mouse.set_visible(True)
 
@@ -168,27 +168,32 @@ while True:#--> aca se reinicia el juego en un bucle
             if event.type == QUIT:
                 is_running = False
 
-            elif event.type == pygame.USEREVENT:         
+            elif event.type == pygame.USEREVENT:
+            
+                disparos = create_laser_naves_enemigas(block2["rect"].midtop,speed_laser,block2["color"])
+                disparos = create_laser_naves_enemigas(block3["rect"].midtop,speed_laser,block3["color"])
+                disparos = create_laser_naves_enemigas(block4["rect"].midtop,speed_laser,block4["color"])  
+
+
                 rebote_creado(block2,velocidad,width)
                 rebote_creado(block3,velocidad,width)
-                rebote_creado(block4,velocidad,width)     
+                rebote_creado(block4,velocidad,width) 
 
-                tiempo_actual = pygame.time.get_ticks()
-                if tiempo_actual -tiempo_ultimo_disparo > intervalo_disparo:
-                    for blocks in [block2,block3,block4]:
-                        x_disparo = blocks["rect"].midbottom and blocks["rect"].width // 2
-                        y_disparo = blocks["rect"].midbottom  and blocks["rect"].height
+                
+        #         tiempo_actual = pygame.time.get_ticks()
+        #         if tiempo_actual -tiempo_ultimo_disparo > intervalo_disparo:
+        #             for blocks in [block2,block3,block4]:
+        #                 x_disparo = blocks["rect"].midbottom and blocks["rect"].width // 2
+        #                 y_disparo = blocks["rect"].midbottom  and blocks["rect"].height
+        #             disparos.append(pygame.Rect(x_disparo,y_disparo,10,15))
 
-                        disparos.append(pygame.Rect(x_disparo,y_disparo,10,15)) 
-                    tiempo_ultimo_disparo = tiempo_actual
+        #     #----------mover los disparos   hacia abajo
+        #         for disparo in disparos:
+        #             disparo.y += velocidad_disparos       
+        # #---------elimino los disparos q salen de la pantalla--------
+        #         disparos = [disparo for disparo in disparos if disparo.y < height]
 
-            #----------mover los disparos   hacia abajo
-                    for disparo in disparos:
-                        disparo.y += velocidad_disparos       
-            #---------elimino los disparos q salen de la pantalla--------
-                    disparos = [disparo for disparo in disparos if disparo.y < height]
-
-
+#----------------------eventos de movimientos con el boton apretado-------------
             if event.type == KEYDOWN:
                 if event.key == K_f:#-->se creo el evento del disparo laser con la letra f
                     if rafaga:#-->aca se crea la lista de laserss
@@ -248,7 +253,8 @@ while True:#--> aca se reinicia el juego en un bucle
                     if playing_music:
                         wait_user()
                         pygame.mixer.music.unpause()
-# #-------------------------------------------------------------------------------------------------->                    
+# #--------------------------------------------------------------------------------------------------> 
+           
             if event.type == KEYUP:
                 if event.key == K_RIGHT:
                         move_right = False
@@ -271,7 +277,7 @@ while True:#--> aca se reinicia el juego en un bucle
                 naves.append(creo_naves_nuevas(imagen_nave,randint(0,width - ancho_nave),randint(0,height - largo_nave),
                                                ancho_nave,largo_nave,green,largo_nave // 2))
 
-#-----------------------------------------------------------------------------------------------------
+#------------------evento con el mouse apretado-----------------------------------------------------------------------------------
             if event.type == MOUSEBUTTONDOWN:
                 #-->aca se vuelve a utilizar el laser ,con el mouse
                 if event.button == 1:
@@ -293,9 +299,23 @@ while True:#--> aca se reinicia el juego en un bucle
         #----> ACTUALIZO LOS ELEMNTOS------------------->
 
         # #-------------- movimientos  con las teclas de las flecha---------------------->
-         
+        
+        if move_up and block["rect"].top >= 0:
+            #-->muevo arriba
+            block["rect"].top -= SPEED
+        if move_down and block["rect"].bottom <= height:
+            #--> muevo abajo
+            block["rect"].top += SPEED
+        if move_left and block["rect"].left >= 0:
+            #--->muevo izquierda
+            block["rect"].left -= SPEED
+        if move_right and block["rect"].right <= width:
+            #-->muevo derecha
+            block["rect"].left += SPEED
         
         #--->muevo las naves en caida
+       
+
         for nave in naves:
             #-->movimiento normal si 
             if not trick_reverse and not trick_slow: #--> aca no pasa nada el movimiento es normal
@@ -311,37 +331,35 @@ while True:#--> aca se reinicia el juego en un bucle
             elif trick_reverse:#-->aca los pongo en reversa a los asteroides en caso de apretar la letra r
                 if nave["rect"].top <= height:
                     nave["rect"].move_ip(0,- nave["speed_y"])
-        
-        laser_movimiento(laser,"rect",lasers,"speed_y",rafaga)
-       
 
-        #mover_lasers("rect",lasers,"speed_y") 
             #--->creo el movimiento del laser 
             #----> si existe el laser ?
             #-->creo la rafaga y si existe disparo la rafaga y si NO disparo normal
             #--> aca recorro una copia de la lista de lasers
-        
-
-        
-        #  if rafaga:
-             #for laser in lasers[:]:
-        #         if laser["rect"].bottom >= 0:
-        #             laser["rect"].move_ip(0, -laser["speed_y"])
-        #         else:
-        #             #-->si el laser salio de la pantalla lo destruyo
-        #             lasers.remove(laser)
-        # else:
-        #     if laser:
-        #             #--->si el laser esta dentro de la pantgalla lo muevo
-        #         if laser["rect"].bottom >= 0:
-        #             laser["rect"].move_ip(0, -laser["speed_y"])
-        #         else:
-        #             #-->si el laser salio de la pantalla lo destruyo
-        #             laser = None
-                   
         if rafaga:
             for laser in lasers[:]:
-                    #-->de detecta colocion de la nave con asteroides
+                if laser["rect"].bottom >= 0:
+                    laser["rect"].move_ip(0, -laser["speed_y"])
+                else:
+                    #-->si el laser salio de la pantalla lo destruyo
+                    lasers.remove(laser)
+        else:
+            if laser:
+                    #--->si el laser esta dentro de la pantgalla lo muevo
+                if laser["rect"].bottom >= 0:
+                    laser["rect"].move_ip(0, -laser["speed_y"])
+                else:
+                    #-->si el laser salio de la pantalla lo destruyo
+                    laser = None
+
+            # manejar_rafaga(rafaga,lasers,naves,score,fuente,round_three,laser,playing_music,golpe_sound,numero_naves,imagen_nave2)    
+
+            #    colision_nave_con_nave(naves,score,fuente,width,red,playing_music,golpe_nave,round_two,imagen_nave2)
+        # -----------------------------------------------------------------    
+              
+        if rafaga:
+            for laser in lasers[:]:
+                    #-->de detecta colicion de la nave con laser
                 colision  = False
                 for nave in naves[:]:
                     if detectar_colision_circulo(nave["rect"],laser["rect"]):
@@ -353,7 +371,7 @@ while True:#--> aca se reinicia el juego en un bucle
                         cont_comer = 10
                         colision = True
                         if playing_music:
-                           golpe_sound.play()
+                            golpe_sound.play()
 
                         if len(naves) == 0:
                             genero_naves(naves,numero_naves,imagen_nave2)
@@ -365,7 +383,7 @@ while True:#--> aca se reinicia el juego en un bucle
                     lasers.remove(laser)
         else:
             if laser:
-                    #-->de detecta colocion de la nave con asteroides
+                    #-->de detecta colicion de la nave con el laser
                 colision  = False
                 for nave in naves[:]:
                     if detectar_colision_circulo(nave["rect"],laser["rect"]):
@@ -377,14 +395,14 @@ while True:#--> aca se reinicia el juego en un bucle
                         cont_comer = 10
                         colision = True
                         if playing_music:
-                           golpe_nave.play()
+                            golpe_nave.play()
                         
                         if len(naves) == 0:
                             genero_naves(naves,numero_naves,imagen_nave2)
                             round_two.play()
-      
                 if colision:
                     laser = None
+
                 #-----detecto colicion y descuento las vidas
         for nave in naves[:]:
                 if detectar_colision_circulo(nave["rect"],block["rect"]):
@@ -397,12 +415,10 @@ while True:#--> aca se reinicia el juego en un bucle
                         cont_comer = 10
                     if playing_music:
                        golpe_nave.play()
-
 #------------------------------------------------------------------------------            
-        if cont_comer >= 10:
+        if cont_comer >= 2:
             cont_comer -= 1
-            laser = create_laser(block2["rect"].midtop,speed_laser)
-            #block2["rect"].width = rect_w + 5
+            block2["rect"].width = rect_w + 5
             block2["rect"].height = rect_h + 5
         else:
             #block2["rect"].width = rect_w
@@ -413,7 +429,7 @@ while True:#--> aca se reinicia el juego en un bucle
         #screen.fill(black)
         screen.blit(background,origin)
 
-        #dibujar_asteroide(screen,asteroid)
+        #dibujar_naves(screen,naves)
         dibujar_naves(screen,naves)
             
         #pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
@@ -428,8 +444,9 @@ while True:#--> aca se reinicia el juego en un bucle
         else:
             if laser:
                 pygame.draw.rect(screen,laser["color"],laser["rect"])
+
         for disparo in disparos:
-            pygame.draw.rect(screen,green,disparo)        
+            pygame.draw.rect(screen,disparos["color"],disparos["rect"])     
 
        #---> aca mostramos las vidas que tenemos al comenzar
         mostrar_texto(screen,f"Lives: {lives}",fuente,(100, height -30),magenta)
@@ -442,6 +459,7 @@ while True:#--> aca se reinicia el juego en un bucle
         max_contador = score
 
     #--> aca doy los mensajes del score el juego termino y una tecla precionar para continuar
+
     pygame.mixer.music.stop()
     game_over_sound.play()
     screen.fill(black)

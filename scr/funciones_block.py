@@ -113,7 +113,7 @@ def mostrar_texto(superficie,texto,fuente,coordenadas,color_fuente = white,color
 
 
 
-    #pygame.display.flip() 
+    
 
 #-------------------------creo el bloque que va contener la imagenb principal
 def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color = (255,255,255),dir = DR,
@@ -142,13 +142,12 @@ def creo_naves_nuevas( imagen = None,left = 0,top = 0,width = 70 ,height = 70, c
 def create_laser(mid_bottom=0, speed_y = 5,color=red):
         return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
 
+def create_laser_naves_enemigas(mid_bottom=0, speed_y = 5,color=red):
+        return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
 
-# def create_conis(imagen=None):
-#     width_coin = randint(width_coin_min,height_coin_max)
-#     height_coin = randint(width_coin_min,height_coin_max)
-#     return create_block(imagen,randint(0,width - width_coin),randint(-height, - height_coin),
-#                         width_coin,height_coin,magenta,0,0,height_coin // 2,speed_y=randint(speed_coin_min,speed_coin_max))
+
 #---------------------------------------------------------------------------------
+#------cree la direcion de las naves de un lado a otro --------------------
 def rebote_creado(block,velocidad,width):
     if block["rebote"]:
         if block["rect"].right <= width - 50:
@@ -247,8 +246,42 @@ def control_eventos(event):
 
     return move_right,move_left,move_up,move_down
     
+#----------------------------------------------------------------------------------------------
+def manejar_colision(naves, laser, score,fuente, 
+                     round_two, playing_music, golpe_sound,round_three, numero_naves, imagen):
+    colision  = False
+    for nave in naves[:]:
+        if detectar_colision_circulo(nave["rect"],laser["rect"]):
+            naves.remove(nave)
+            score += 1 
+            texto = fuente.render(f"Score :{score}",True,red)
+            rec_texto = texto.get_rect()
+            rec_texto.midtop = (width // 2,30)
+            #cont_comer = 10
+            colision = True
+            if playing_music:
+                golpe_sound.play()
+            if len(naves) == 0:
+                genero_naves(naves,numero_naves,imagen)
+                round_two.play()
+            elif len(naves) == 5:
+                genero_naves(naves,numero_naves,imagen)
+                round_three.play()
+    return colision
 
-
+def manejar_rafaga(rafaga, lasers, naves, score, fuente,laser,round_three,
+                     playing_music, golpe_sound, numero_naves, imagen):
+    if rafaga:
+        for laser in lasers[:]:
+            colision = manejar_colision(naves, laser, score, fuente, playing_music, golpe_sound, numero_naves)
+            if colision:
+                lasers.remove(laser)
+    else:
+        if laser:
+            colision = manejar_colision(naves,laser,score,fuente,round_three,playing_music,golpe_sound,0,numero_naves,imagen)
+            if colision:
+                laser = None
+#------------------------------------------------------------------------------------------------
     #--->creo el movimiento del laser 
     #----> si existe el laser ?
     #-->creo la rafaga y si existe disparo la rafaga y si NO disparo norma
@@ -265,7 +298,7 @@ def laser_movimiento(laser,key:str,lasers,velo:str,rafaga):
                 laser[key].move_ip(0, -laser[velo])
             else:
                 laser = None
-
+#------------------------------------------------------------------------------------------------
 def mover_lasers(key:str,lasers,velo:str):
     for laser in lasers[:]:
         if laser[key].bottom >= 0:
@@ -274,30 +307,4 @@ def mover_lasers(key:str,lasers,velo:str):
             lasers.remove(laser)                   
 #---------------------------------------------------------------
 
-# for i in range(count_conis):
-#     coins.append(create_block(randint(0,width - width_coin),randint(0,height - height_coin),width_coin,height_coin,yelloy,0,0,height_coin // 2))
 
-#block = [pygame.Rect(300,300,150,100),red,UR]
-# blocks = [,
-#           {"rect":pygame.Rect(randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h),"color": get_new_color(),"dir":DL,"borde":0,"radio":-1},
-#           {"rect":pygame.Rect(randint(0,width - rect_w),randint(0,height - rect_h),rect_w,rect_h),"color": get_new_color(),"dir":DR,"borde":0,"radio":-1}]
-
-    # pygame.draw.rect(screen,magenta,rect_saludar,border_radius=5)
-    # render_saludar = fuente.render("saludar",True,font_color)
-    # rect_text_saludar = render_saludar.get_rect(center = rect_saludar.center )
-    # #rect_text_saludar.center = rect_saludar.center
-    # screen.blit(render_saludar,rect_text_saludar)
-
-    
-    # pygame.draw.rect(screen,magenta,rect_brindar,border_radius=5)
-    # render_brindar = fuente.render("brindar",True,font_color)
-    # rect_text_brindar = render_brindar.get_rect(center = rect_brindar.center )
-    # #rect_text_saludar.center = rect_saludar.center
-    # screen.blit(render_brindar,rect_text_brindar)
-
-
-    # pygame.draw.rect(screen,magenta,rect_despedir,border_radius=5)
-    # render_despedir = fuente.render("despedir",True,font_color)
-    # rect_text_despedir = render_despedir.get_rect(center = rect_despedir.center )
-    # #rect_text_saludar.center = rect_saludar.center
-    # screen.blit(render_despedir,rect_text_despedir)
