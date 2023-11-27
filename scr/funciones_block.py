@@ -32,15 +32,22 @@ rect_h = 100
 
 
 #--> dimenciones de las nave---
-ancho_nave = 20
-largo_nave = 20
+ancho_nave = 30
+largo_nave = 30
 
 ancho_nave_min = 50
 largo_nave_max = 50
 
-numero_naves = 5
+numero_naves = 10
+
 speed_nave_min = 1
-speed_nave_max = 4
+speed_nave_max = 2
+
+velocidad_nave_x = 7
+velocidad_nave_y = 7
+
+velocidad_laser_y = 10
+velocidad_laser_x = 7
 #----------------------------------
 
 
@@ -48,9 +55,9 @@ speed_x = 7
 speed_y = 7
 
 
-speed_laser = 5
+speed_laser = 7
 
-count_asteroid = 5
+
 
 
 
@@ -131,19 +138,20 @@ def naves_enemigas(imagen = None, width = 50 , height = 50):
 #---------------------------------------------------------------------------------------------------------
 
 def creo_naves_nuevas( imagen = None,left = 0,top = 0,width = 70 ,height = 70, color = (255,255,255),dir = DR,
-                 borde = 0,radio = -1,speed_x = 5, speed_y = 5,rebote = True,bajando=True):
+                 borde = 0,radio = -1,speed_x = 7, speed_y = 7,rebote = True,bajando=True):
     if imagen:
         imagen = pygame.transform.scale(imagen,(width,height))
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
-            "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen,"rebote":rebote,"bajando":bajando}
+            "speed_x":speed_x,"speed_y":speed_y,"imagen":imagen,"rebote":rebote,"bajando":bajando}
 
 
 #-----------funcion se crea el laser ------------------------------------------------------------------------
-def create_laser(mid_bottom=0, speed_y = 5,color=red):
-        return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
-
-def create_laser_naves_enemigas(mid_bottom=0, speed_y = 5,color=red):
-        return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"speed_y":speed_y}
+def create_laser(mid_bottom=0, velocidad_laser_y = 10,color=red):
+        return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16), "color":color ,"velocidad_laser_y":velocidad_laser_y}
+#-------------------------------------------------------------------------------------------------------
+#----> creo el laser de las naves enemigas
+def create_laser_naves_enemigas(mid_bottom=0, velocidad_laser_y =7,color=Color ('red')):
+        return {"rect":pygame.Rect(mid_bottom[0] - 3,mid_bottom[1] - 8,6,16),"velocidad_laser_y":velocidad_laser_y, "color":color}
 
 
 #---------------------------------------------------------------------------------
@@ -164,7 +172,7 @@ def creo_naves(imagen = None):
     ancho_nave  = randint(ancho_nave_min,largo_nave_max)
     largo_nave = randint(ancho_nave_min,largo_nave_max)
     return creo_naves_nuevas(imagen,randint(0,width - ancho_nave),randint(-height, - largo_nave),
-                        ancho_nave,largo_nave,green,0,0,largo_nave // 2,speed_y=randint(speed_nave_min,speed_nave_max))
+                        ancho_nave,largo_nave,green,0,0,largo_nave // 1,speed_y=randint(speed_nave_min,speed_nave_max))
 
 def genero_naves(naves,numero_naves,imagen):
     for i in range(numero_naves):
@@ -307,4 +315,34 @@ def mover_lasers(key:str,lasers,velo:str):
             lasers.remove(laser)                   
 #---------------------------------------------------------------
 
+def manejar_eventos(eventos,lista_lasers,block,playing_music,diparo_laser):
+    for event in eventos:
+        if event.type == KEYDOWN:
+            if event.key == K_f:
+                if rafaga:
+                    lista_lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
+                else:
+                    if not laser:
+                        laser = create_laser(block["rect"].midtop,speed_laser)
+                    if  playing_music:
+                        diparo_laser.play()
+            if event.key == K_RIGHT or event.key == K_d:
+                move_right = True
+                move_left = False
+            if event.key == K_LEFT or event.key == K_a:
+                move_left = True
+                move_right = False
+            if event.key == K_UP or event.key == K_w:
+                move_up = True
+                move_down = False
+            if event.key == K_DOWN or event.key == K_s:
+                move_down = True
+                move_up = False
+            if event.key == K_l:
+                trick_slow = True
+            if event.key == K_r:
+                trick_reverse = True
+            if event.key == K_g:
+                rafaga= True
+    return move_right, move_left, move_up, move_down, trick_slow, trick_reverse, rafaga
 

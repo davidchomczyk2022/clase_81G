@@ -69,7 +69,7 @@ background2 = pygame.transform.scale(pygame.image.load("./scr/images/fondo_2.jpg
 EVENT_NWE_NAVE = pygame.USEREVENT + 1
 
 pygame.time.set_timer(EVENT_NWE_NAVE,4000)
-pygame.time.set_timer(pygame.USEREVENT,1000)
+
 pygame.display.set_icon(imagen_icono)
 
 #-----------creo el bloque donde le agrego la imagen de la nave y le doy los parametros -------
@@ -82,27 +82,26 @@ except pygame.error:
 
 try:
     block2 = creo_naves_nuevas(imagen_enemiga2,(width - 300),(100),
-    rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10,rebote=True)
+    rect_w,rect_h,speed_y,rebote=True)
     
 except pygame.error:
     print("Error al ingresar los datos")
 
 block3 = creo_naves_nuevas(imagen_enemiga3,(height - rect_h),(100),
-rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10,rebote=True)
+rect_w,rect_h,speed_y,rebote=True)
 
 block4 = creo_naves_nuevas(imagen_enemiga4,(height // 2),(100),
-rect_w,rect_h,get_color(colors),radio= 70,speed_x= 10,speed_y=10,rebote=True,bajando=True)
+rect_w,rect_h,speed_y,rebote=True,bajando=True)
 
 
 
 
-velocidad_disparos = 100
-disparo = 0
-disparos = []
-# enemy_laser = []
+
+
 max_contador = 0
-tiempo_ultimo_disparo = pygame.time.get_ticks()
-intervalo_disparo = 2000 # milisegundos = 2  segundos 
+
+DISPARO_LASER = pygame.USEREVENT 
+pygame.time.set_timer(DISPARO_LASER,2000)
 
 while True:#--> aca se reinicia el juego en un bucle
     #---> aca en este punto se reinicia el juego , en un bucle el
@@ -112,10 +111,12 @@ while True:#--> aca se reinicia el juego en un bucle
     score = 0
     rafaga = False
     lives = 3
-    velocidad = 50
     direccion = 1
     rebote = True
-
+    velocidad_disparos = 100
+    disparo = 0
+    disparos = []
+    disparos_nave1 = []
     #-----------UTILIZO try except en caso  que la funte se cargue mal o no se encuentre en el ordenador-----
     try:
         fuente = pygame.font.SysFont("MV Boli",30)
@@ -137,7 +138,10 @@ while True:#--> aca se reinicia el juego en un bucle
 
     #-->creo una lista de laseres
     lasers = []
-    
+    disparo = 0
+    disparos = []
+    disparos_nave1 = []
+
     #--> aca lo vuelvo hacer vicible al cursos del mouse
     pygame.mouse.set_visible(True)
 
@@ -168,32 +172,39 @@ while True:#--> aca se reinicia el juego en un bucle
             if event.type == QUIT:
                 is_running = False
 
-            elif event.type == pygame.USEREVENT:
+            elif event.type == DISPARO_LASER:
+                velocidad = 100
             
-                disparos = create_laser_naves_enemigas(block2["rect"].midtop,speed_laser,block2["color"])
-                disparos = create_laser_naves_enemigas(block3["rect"].midtop,speed_laser,block3["color"])
-                disparos = create_laser_naves_enemigas(block4["rect"].midtop,speed_laser,block4["color"])  
+                disparos_nave1.append(create_laser_naves_enemigas(block2["rect"].midtop,velocidad_disparos,cyan))
+                disparos_nave1.append(create_laser_naves_enemigas(block3["rect"].midtop,velocidad_disparos,cyan))
+                disparos_nave1.append(create_laser_naves_enemigas(block4["rect"].midtop,velocidad_disparos,cyan))  
 
+                for disparo in disparos_nave1:
+                    if disparo["rect"].bottom >= 0:
+                        disparo["rect"].move_ip(0, disparo["velocidad_laser_y"])
+                    else:
+                        disparos_nave1.remove(disparo)
 
                 rebote_creado(block2,velocidad,width)
                 rebote_creado(block3,velocidad,width)
                 rebote_creado(block4,velocidad,width) 
+#------------------------------dete3cto colision entre disparos enemigos y mi nave
 
-                
-        #         tiempo_actual = pygame.time.get_ticks()
-        #         if tiempo_actual -tiempo_ultimo_disparo > intervalo_disparo:
-        #             for blocks in [block2,block3,block4]:
-        #                 x_disparo = blocks["rect"].midbottom and blocks["rect"].width // 2
-        #                 y_disparo = blocks["rect"].midbottom  and blocks["rect"].height
-        #             disparos.append(pygame.Rect(x_disparo,y_disparo,10,15))
-
-        #     #----------mover los disparos   hacia abajo
-        #         for disparo in disparos:
-        #             disparo.y += velocidad_disparos       
-        # #---------elimino los disparos q salen de la pantalla--------
-        #         disparos = [disparo for disparo in disparos if disparo.y < height]
+                for disparo in disparos_nave1:
+                    if detectar_colision_circulo(disparo["rect"],block2["rect"]):
+                        naves.remove(block2)
+                        if lives > 1:
+                            lives -= 1
+                        else:
+                            game_over_sound.play()
+                            is_running = False
+                            cont_comer = 10
+                        if playing_music:
+                            golpe_nave.play()        
 
 #----------------------eventos de movimientos con el boton apretado-------------
+           
+  
             if event.type == KEYDOWN:
                 if event.key == K_f:#-->se creo el evento del disparo laser con la letra f
                     if rafaga:#-->aca se crea la lista de laserss
@@ -204,10 +215,10 @@ while True:#--> aca se reinicia el juego en un bucle
                         if  playing_music:
                             diparo_laser.play()
                 
-                # control_eventos(event)
+
           
-#------------> se recrea los movimientos con las teclas d / a / w / s------------------------------->
-  # control_eventos(event)
+#-----------> se recrea los movimientos con las teclas d / a / w / s------------------------------->
+         
                 
                 if event.key == K_RIGHT or event.key == K_d:
                     move_right = True
@@ -275,7 +286,7 @@ while True:#--> aca se reinicia el juego en un bucle
     
             if event.type == EVENT_NWE_NAVE:
                 naves.append(creo_naves_nuevas(imagen_nave,randint(0,width - ancho_nave),randint(0,height - largo_nave),
-                                               ancho_nave,largo_nave,green,largo_nave // 2))
+                                               ancho_nave,largo_nave,green,largo_nave // 1))
 
 #------------------evento con el mouse apretado-----------------------------------------------------------------------------------
             if event.type == MOUSEBUTTONDOWN:
@@ -287,7 +298,7 @@ while True:#--> aca se reinicia el juego en un bucle
                             diparo_laser.play()
                     else:    
                         if not laser:
-                            laser = create_laser(block["rect"].midtop,speed_laser)
+                            laser = create_laser(block["rect"].midtop,speed_laser,red)
                         if playing_music:
                             diparo_laser.play()
                 if event.button == 3:
@@ -314,7 +325,7 @@ while True:#--> aca se reinicia el juego en un bucle
             block["rect"].left += SPEED
         
         #--->muevo las naves en caida
-       
+        pygame.mouse.set_pos(block["rect"].centerx,block["rect"].centery)
 
         for nave in naves:
             #-->movimiento normal si 
@@ -339,7 +350,7 @@ while True:#--> aca se reinicia el juego en un bucle
         if rafaga:
             for laser in lasers[:]:
                 if laser["rect"].bottom >= 0:
-                    laser["rect"].move_ip(0, -laser["speed_y"])
+                    laser["rect"].move_ip(0, -laser["velocidad_laser_y"])
                 else:
                     #-->si el laser salio de la pantalla lo destruyo
                     lasers.remove(laser)
@@ -347,7 +358,7 @@ while True:#--> aca se reinicia el juego en un bucle
             if laser:
                     #--->si el laser esta dentro de la pantgalla lo muevo
                 if laser["rect"].bottom >= 0:
-                    laser["rect"].move_ip(0, -laser["speed_y"])
+                    laser["rect"].move_ip(0, -laser["velocidad_laser_y"])
                 else:
                     #-->si el laser salio de la pantalla lo destruyo
                     laser = None
@@ -376,9 +387,9 @@ while True:#--> aca se reinicia el juego en un bucle
                         if len(naves) == 0:
                             genero_naves(naves,numero_naves,imagen_nave2)
                             round_two.play()
-                        elif len(naves) == 5:
-                            genero_naves(naves,numero_naves,imagen_nave2)
-                            round_three.play()
+                        # elif len(naves) == 5:
+                        #     genero_naves(naves,numero_naves,imagen_nave2)
+                        #     round_three.play()
                 if colision:
                     lasers.remove(laser)
         else:
@@ -434,9 +445,6 @@ while True:#--> aca se reinicia el juego en un bucle
             
         #pygame.draw.rect(screen,block["color"],block["rect"],block["borde"],block["radio"])
         screen.blit(block["imagen"],block["rect"])
-        screen.blit(block2["imagen"],block2["rect"])
-        screen.blit(block3["imagen"],block3["rect"])
-        screen.blit(block4["imagen"],block4["rect"])
         #-->creo el lasery creo la rafaga de lasers
         if rafaga:
             for laser in lasers:
@@ -445,8 +453,21 @@ while True:#--> aca se reinicia el juego en un bucle
             if laser:
                 pygame.draw.rect(screen,laser["color"],laser["rect"])
 
-        for disparo in disparos:
-            pygame.draw.rect(screen,disparos["color"],disparos["rect"])     
+        for disparo in disparos_nave1:
+            pygame.draw.rect(screen,disparo["color"],disparo["rect"])  
+
+        screen.blit(block2["imagen"],block2["rect"])
+
+        for disparo in disparos_nave1:
+            pygame.draw.rect(screen,disparo["color"],disparo["rect"])     
+
+        screen.blit(block3["imagen"],block3["rect"])
+
+        for disparo in disparos_nave1:
+            pygame.draw.rect(screen,disparo["color"],disparo["rect"])   
+
+        screen.blit(block4["imagen"],block4["rect"])
+
 
        #---> aca mostramos las vidas que tenemos al comenzar
         mostrar_texto(screen,f"Lives: {lives}",fuente,(100, height -30),magenta)
@@ -472,3 +493,15 @@ while True:#--> aca se reinicia el juego en un bucle
 
 terminar()
 
+    #         tiempo_actual = pygame.time.get_ticks()
+        #         if tiempo_actual -tiempo_ultimo_disparo > intervalo_disparo:
+        #             for blocks in [block2,block3,block4]:
+        #                 x_disparo = blocks["rect"].midbottom and blocks["rect"].width // 2
+        #                 y_disparo = blocks["rect"].midbottom  and blocks["rect"].height
+        #             disparos.append(pygame.Rect(x_disparo,y_disparo,10,15))
+
+        #     #----------mover los disparos   hacia abajo
+        #         for disparo in disparos:
+        #             disparo.y += velocidad_disparos       
+        # #---------elimino los disparos q salen de la pantalla--------
+        #         disparos = [disparo for disparo in disparos if disparo.y < height]
