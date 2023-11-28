@@ -114,9 +114,7 @@ while True:#--> aca se reinicia el juego en un bucle
     direccion = 1
     rebote = True
     velocidad_disparos = 100
-    disparo = 0
-    disparos = []
-    disparos_nave1 = []
+   
     #-----------UTILIZO try except en caso  que la funte se cargue mal o no se encuentre en el ordenador-----
     try:
         fuente = pygame.font.SysFont("MV Boli",30)
@@ -147,10 +145,9 @@ while True:#--> aca se reinicia el juego en un bucle
 
     screen.blit(background2,origin)
     mostrar_texto(screen,"Estrella de la Muerte",fuente,(width //2 ,50 ),green)
+    pygame.display.flip()
 
    #-->creo el boton,, lo muestro en su estado final
-   
-    pygame.display.flip()
     wait_click_stark(btn_comenzar)
 
     #---> aca dejo invicible el mouse
@@ -163,8 +160,12 @@ while True:#--> aca se reinicia el juego en un bucle
 
   
     is_running = True
-
+    time_play = FPS * 40
     while is_running:
+        #---> aca se crea el tiempo de juego
+        time_play -= 1
+        if time_play == 0:
+            is_running = False
 
         clock.tick(FPS)
         #--->detectar los eventos
@@ -191,8 +192,8 @@ while True:#--> aca se reinicia el juego en un bucle
 #------------------------------dete3cto colision entre disparos enemigos y mi nave
 
                 for disparo in disparos_nave1:
-                    if detectar_colision_circulo(disparo["rect"],block2["rect"]):
-                        naves.remove(block2)
+                    if detectar_colision_circulo(disparo["rect"],block["rect"]):
+                        disparos_nave1.remove(disparo)
                         if lives > 1:
                             lives -= 1
                         else:
@@ -200,7 +201,7 @@ while True:#--> aca se reinicia el juego en un bucle
                             is_running = False
                             cont_comer = 10
                         if playing_music:
-                            golpe_nave.play()        
+                            golpe_nave.play()      
 
 #----------------------eventos de movimientos con el boton apretado-------------
            
@@ -324,7 +325,7 @@ while True:#--> aca se reinicia el juego en un bucle
             #-->muevo derecha
             block["rect"].left += SPEED
         
-        #--->muevo las naves en caida
+        # #------------------movimiento con el mouse-acompañando a al nave----------------------------------->
         pygame.mouse.set_pos(block["rect"].centerx,block["rect"].centery)
 
         for nave in naves:
@@ -471,7 +472,12 @@ while True:#--> aca se reinicia el juego en un bucle
 
        #---> aca mostramos las vidas que tenemos al comenzar
         mostrar_texto(screen,f"Lives: {lives}",fuente,(100, height -30),magenta)
-       
+        mostrar_texto(screen,f"Score:{score}",fuente,(140, 20),green)
+        
+        mostrar_texto(screen,f"Time:{time_play:2d}",fuente,(140, 60),green)
+        if time_play == 0:
+            mostrar_texto(screen," Time Finished ",fuente,center_scree,red)
+        mostrar_texto(screen,f"Top Score:{max_contador}",fuente,(width - 150, 20),green)
         #----->ACTUALIZO PANTALLA----------------->
         pygame.display.flip()
 
@@ -489,6 +495,7 @@ while True:#--> aca se reinicia el juego en un bucle
     mostrar_texto(screen,"Game Over",fuente,center_scree,red)
     mostrar_texto(screen,"Presione una tecla para comenzar....",fuente,(width //2 , height - 50 ),blue)
     pygame.display.flip()
+
     wait_user()
 
 terminar()

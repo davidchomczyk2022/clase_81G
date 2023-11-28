@@ -326,6 +326,7 @@ def manejar_eventos(eventos,lista_lasers,block,playing_music,diparo_laser):
                         laser = create_laser(block["rect"].midtop,speed_laser)
                     if  playing_music:
                         diparo_laser.play()
+
             if event.key == K_RIGHT or event.key == K_d:
                 move_right = True
                 move_left = False
