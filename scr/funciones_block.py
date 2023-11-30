@@ -48,6 +48,7 @@ velocidad_nave_y = 7
 
 velocidad_laser_y = 10
 velocidad_laser_x = 7
+velocidad = 7
 #----------------------------------
 
 
@@ -72,7 +73,8 @@ def get_new_color():
     return (r,g,b)
 
 
-
+ESTADO_INICIO = 0
+ESTADO_SALIR = 1
 
 def terminar():
     pygame.quit()
@@ -91,20 +93,36 @@ def wait_user():
 #---> funcion creo un boton y al psar x encima recreo un hover (cambio de color el boton )            
 def wait_click_stark(rect_boton):
     while True:
-        crear_boton(screen,"Comenzar",red,white,rect_boton,cyan,black)
+        crear_boton(screen,"Inicio :",black,white,rect_boton,green,black)
         pygame.display.flip()
         for evento in event.get():
-            if evento.type == QUIT:
+            if evento.type == QUIT:#al tocar la X de la ventana se cierra
                 terminar()
             if evento.type == KEYDOWN:
-                if evento.key == K_ESCAPE:
+                if evento.key == K_ESCAPE:# al tocar la tecla escape se cierra
                     terminar()
             if evento.type == MOUSEBUTTONDOWN:
                     cursor_posicion = evento.pos
                     if evento.button == 1:
                         if rect_boton.collidepoint(cursor_posicion):
-                            return None
-
+                            return ESTADO_INICIO
+#---------------------------------------------------------------------------------------------------------------------
+def boton_salir(rect_boton):
+    while True:
+        crear_boton(screen,"Salir :",black,white,rect_boton,green,black)
+        pygame.display.flip()
+        for evento in event.get():
+            if evento.type == QUIT:#al tocar la X de la ventana se cierra
+                terminar()
+            if evento.type == KEYDOWN:
+                if evento.key == K_ESCAPE:# al tocar la tecla escape se cierra
+                    terminar()
+            if evento.type == MOUSEBUTTONDOWN:
+                    cursor_posicion = evento.pos
+                    if evento.button == 1:
+                        if rect_boton.collidepoint(cursor_posicion):
+                            return ESTADO_SALIR
+#---------------------------------------------------------------------------------------------------------------------
 def punto_en_rectangulo(punto, rect):
     x,y = punto
     return x >= rect.left and x <= rect.right and y >= rect.top and y <= rect.bottom
@@ -130,6 +148,12 @@ def create_block( imagen = None,left = 0,top = 0,width = 50 ,height = 50, color 
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
             "speed_x": speed_x,"speed_y":speed_y,"imagen":imagen}
 
+def creo_poder_laser(imagen = None,left = 0,top = 0,width = 50 ,height = 50, color = (255,255,255),speed_y = 5):
+    if imagen:
+        imagen = pygame.transform.scale(imagen,(width,height))
+    return {"rect":pygame.Rect(left,top,width,height),"color":color,"speed_y":speed_y,"imagen":imagen}
+
+
 def naves_enemigas(imagen = None, width = 50 , height = 50):
     if imagen:
      imagen = pygame.transform.scale(imagen,(width,height))
@@ -138,7 +162,7 @@ def naves_enemigas(imagen = None, width = 50 , height = 50):
 #---------------------------------------------------------------------------------------------------------
 
 def creo_naves_nuevas( imagen = None,left = 0,top = 0,width = 70 ,height = 70, color = (255,255,255),dir = DR,
-                 borde = 0,radio = -1,speed_x = 7, speed_y = 7,rebote = True,bajando=True):
+                 borde = 0,radio = -1,speed_x = 10, speed_y = 7,rebote = True,bajando=True):
     if imagen:
         imagen = pygame.transform.scale(imagen,(width,height))
     return {"rect":pygame.Rect(left,top,width,height),"color":color,"dir": dir,"borde":borde,"radio":radio,
@@ -158,13 +182,18 @@ def create_laser_naves_enemigas(mid_bottom=0, velocidad_laser_y =7,color=Color (
 #------cree la direcion de las naves de un lado a otro --------------------
 def rebote_creado(block,velocidad,width):
     if block["rebote"]:
+        if block["rect"].y < 100:
+            block["rect"].y += velocidad
+            block["rect"].x += velocidad
         if block["rect"].right <= width - 50:
             block["rect"].left += velocidad
+           
         else:
             block["rebote"] = not block["rebote"]
     else:
         if block["rect"].left >= 0 + 50:
             block["rect"].left -= velocidad
+          
         else:
             block["rebote"] = not block["rebote"]      
 #----------------------------------------------------------------------------------------------------------------
@@ -235,24 +264,6 @@ def crear_boton(screen,texto,bg_color,bg_color_hover,rect_boton:pygame.Rect,font
 def reproducir_sonido(golpe_sound):
     golpe_sound.play()
 #--------------------------------------------------------------------------------------------------------------------------- 
-def control_eventos(event):
-    if event.key == K_RIGHT or event.key == K_d:
-        move_right = True
-        move_left = False
-
-    elif event.key == K_LEFT or event.key == K_a:
-        move_left = True
-        move_right = False
-
-    elif event.key == K_UP or event.key == K_w:
-        move_up = True
-        move_down = False
-
-    elif event.key == K_DOWN or event.key == K_s:
-        move_down = True
-        move_up = False
-
-    return move_right,move_left,move_up,move_down
     
 #----------------------------------------------------------------------------------------------
 def manejar_colision(naves, laser, score,fuente, 
@@ -312,38 +323,258 @@ def mover_lasers(key:str,lasers,velo:str):
         if laser[key].bottom >= 0:
             laser[key].move_ip(0, -laser[velo])
         else:
-            lasers.remove(laser)                   
+            lasers.remove(laser)
 #---------------------------------------------------------------
+trick_reverse = False
+trick_slow = False
 
-def manejar_eventos(eventos,lista_lasers,block,playing_music,diparo_laser):
-    for event in eventos:
-        if event.type == KEYDOWN:
-            if event.key == K_f:
+def manejar_eventos_teclado(rafaga,lasers,block,playing_music,diparo_laser,fuente,naves):
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            if event.type == pygame.KEYDOWN:
+                if event.key == K_f:#-->se creo el evento del disparo laser con la letra f
+                    if rafaga:#-->aca se crea la lista de laserss
+                        lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
+                    else:
+                        if not laser:#--> aca sigue normal 
+                            laser = create_laser(block["rect"].midtop,speed_laser)
+                        if  playing_music:
+                              diparo_laser.play()
+                                    
+                    if event.key == K_RIGHT or event.key == K_d:
+                        move_right = True
+                        move_left = False
+
+                    if event.key == K_LEFT or event.key == K_a:
+                        move_left = True
+                        move_right = False
+
+                    if event.key == K_UP or event.key == K_w:
+                        move_up = True
+                        move_down = False
+
+                    if event.key == K_DOWN or event.key == K_s:
+                        move_down = True
+                        move_up = False
+    #-------------------------------------------------------------------------------
+
+    # #-----------------> activo los efectos dados con las teclas l /r----------------------------------->
+                    if event.key == K_l:
+                        trick_slow = True
+
+                    if event.key == K_r:
+                        trick_reverse = True
+    #-------------------------------------------------------------------------------------------------->
+    #---------------> aca se utiliza la letra g para la rafaga de lasers------------------------------->
+                    if event.key == K_g:
+                        rafaga= True
+    
+    #--------------> en este evento utilizo la M del teclado para poner un pause el sonido del juego
+                    if event.key == K_m:
+                        if playing_music:
+                            pygame.mixer.music.pause()
+                        else:
+                            pygame.mixer.music.unpause()
+                        playing_music = not playing_music
+    #------------->aca se pausa el juego--------------------------------------------------------------->
+                    if event.key == K_p:
+                        if playing_music:
+                            pygame.mixer.music.pause()
+                            mostrar_texto(screen,"PAUSA",fuente,center_scree,red,black)
+                            wait_user()
+                        if playing_music:
+                            wait_user()
+                            pygame.mixer.music.unpause()
+
+            if event.type == KEYUP:
+                    if event.key == K_RIGHT:
+                            move_right = False
+                    if event.key == K_LEFT:
+                            move_left = False
+                    if event.key == K_UP:
+                            move_up = False
+                    if event.key == K_DOWN:
+                            move_down = False
+                    #-->desactivo las teclas el efecto / dado
+                    if event.key == K_l:
+                        trick_slow = False
+                    if event.key == K_r:
+                        trick_reverse = False
+                    #--> aca se utiliza la letra g para la rafaga de lasers(queda en FALSE)
+                    if event.key == K_g:
+                        rafaga = False
+
+            for nave in naves:
+                #-->movimiento normal si 
+                if not trick_reverse and not trick_slow: #--> aca no pasa nada el movimiento es normal
+                    if nave["rect"].top <= height:
+                        nave["rect"].move_ip(0,nave["speed_y"])
+                    else:
+                        nave["rect"].bottom = 0
+                elif trick_slow:#--> determino la velocidad mas lento con la letra l
+                    if nave["rect"].top <= height:
+                        nave["rect"].move_ip(0,1)
+                    else:
+                        nave["rect"].bottom = 0
+                elif trick_reverse:#-->aca los pongo en reversa a los asteroides en caso de apretar la letra r
+                    if nave["rect"].top <= height:
+                        nave["rect"].move_ip(0,- nave["speed_y"])
+
+                    return move_right,move_left,move_up,move_down,playing_music,rafaga,trick_reverse,trick_slow            
+
+
+def manejar_eventos_mouse(rafaga,lasers,block,playing_music,diparo_laser):
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+    #-->aca se vuelve a utilizar el laser ,con el mouse
+            if event.button == 1:
                 if rafaga:
-                    lista_lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
-                else:
-                    if not laser:
-                        laser = create_laser(block["rect"].midtop,speed_laser)
-                    if  playing_music:
+                    lasers.append(create_laser(block["rect"].midtop,speed_laser,green))
+                    if playing_music:
                         diparo_laser.play()
+                else:    
+                    if not laser:
+                        laser = create_laser(block["rect"].midtop,speed_laser,red)
+                    if playing_music:
+                        diparo_laser.play()
+            if event.button == 3:
+                block["rect"].center = center_scree
+            if event.type == MOUSEMOTION:
+                    block["rect"].center = event.pos
+                    
+            #----> ACTUALIZO LOS ELEMNTOS------------------->
 
-            if event.key == K_RIGHT or event.key == K_d:
-                move_right = True
-                move_left = False
-            if event.key == K_LEFT or event.key == K_a:
-                move_left = True
-                move_right = False
-            if event.key == K_UP or event.key == K_w:
-                move_up = True
-                move_down = False
-            if event.key == K_DOWN or event.key == K_s:
-                move_down = True
-                move_up = False
-            if event.key == K_l:
-                trick_slow = True
-            if event.key == K_r:
-                trick_reverse = True
-            if event.key == K_g:
-                rafaga= True
-    return move_right, move_left, move_up, move_down, trick_slow, trick_reverse, rafaga
+            # #-------------- movimientos  con las teclas de las flecha---------------------->
+            
+            if move_up and block["rect"].top >= 0:
+                #-->muevo arriba
+                block["rect"].top -= SPEED
+            if move_down and block["rect"].bottom <= height:
+                #--> muevo abajo
+                block["rect"].top += SPEED
+            if move_left and block["rect"].left >= 0:
+                #--->muevo izquierda
+                block["rect"].left -= SPEED
+            if move_right and block["rect"].right <= width:
+                #-->muevo derecha
+                block["rect"].left += SPEED
 
+            pygame.mouse.set_pos(block["rect"].centerx,block["rect"].centery)
+
+def manejar_eventos_juego(rafaga,DISPARO_LASER,lasers,naves,fuente,playing_music,golpe_sound,
+                          laser,key:str,velocidad:str,imagen_nave2,round_two,golpe_nave,game_over_sound,block):
+    for event in pygame.event.get():
+        if event.type == DISPARO_LASER:
+                          #--> aca recorro una copia de la lista de lasers
+            if rafaga:
+                for laser in lasers[:]:
+                    if laser[key].bottom >= 0:
+                        laser[key].move_ip(0, -laser[velocidad])
+                    else:
+                        #-->si el laser salio de la pantalla lo destruyo
+                        lasers.remove(laser)
+            else:
+                if laser:
+                        #--->si el laser esta dentro de la pantgalla lo muevo
+                    if laser[key].bottom >= 0:
+                        laser[key].move_ip(0, -laser[velocidad])
+                    else:
+                        #-->si el laser salio de la pantalla lo destruyo
+                        laser = None
+            if rafaga:
+                for laser in lasers[:]:
+                        #-->de detecta colicion de la nave con laser
+                    colision  = False
+                    for nave in naves[:]:
+                        if detectar_colision_circulo(nave[key],laser[key]):
+                            naves.remove(nave)
+                            score += 1 
+                            texto = fuente.render(f"Score :{score}",True,red)
+                            rec_texto = texto.get_rect()
+                            rec_texto.midtop = (width // 2,30)
+                            cont_comer = 10
+                            colision = True
+                            if playing_music:
+                                golpe_sound.play()
+
+                            if len(naves) == 0:
+                                genero_naves(naves,numero_naves,imagen_nave2)
+                                round_two.play()
+                            # elif len(naves) == 5:
+                            #     genero_naves(naves,numero_naves,imagen_nave2)
+                            #     round_three.play()
+                    if colision:
+                        lasers.remove(laser)
+            else:
+                if laser:
+                        #-->de detecta colicion de la nave con el laser
+                    colision  = False
+                    for nave in naves[:]:
+                        if detectar_colision_circulo(nave[key],laser[key]):
+                            naves.remove(nave)
+                            score += 1 
+                            texto = fuente.render(f"Score :{score}",True,red)
+                            rec_texto = texto.get_rect()
+                            rec_texto.midtop = (width // 2,30)
+                            cont_comer = 10
+                            colision = True
+                            if playing_music:
+                                golpe_nave.play()
+                            
+                            if len(naves) == 0:
+                                genero_naves(naves,numero_naves,imagen_nave2)
+                                round_two.play()
+                    if colision:
+                        laser = None
+
+                    #-----detecto colicion y descuento las vidas
+            for nave in naves[:]:
+                    if detectar_colision_circulo(nave["rect"],block["rect"]):
+                        naves.remove(nave)
+                        if lives > 1:
+                            lives -= 1
+                        else:
+                            game_over_sound.play()
+                            is_running = False
+                        if playing_music:
+                            golpe_nave.play()
+                    return is_running        
+
+def detectar_colisiones(lasers,naves,score, fuente, red, playing_music, golpe_sound, numero_naves, imagen_nave2,round_two):
+    for laser in lasers[:]:
+        for nave in naves[:]:
+            if detectar_colision_circulo(nave["rect"], laser["rect"]):
+                naves.remove(nave)
+                score += 1
+                texto = fuente.render(f"Score : {score}", True, red)
+                rec_texto = texto.get_rect()
+                rec_texto.midtop = (width // 2, 30)
+                cont_comer = 10
+                if playing_music:
+                    golpe_sound.play()
+
+                if len(naves) == 0:
+                    genero_naves(naves, numero_naves, imagen_nave2)
+                    round_two.play()
+
+        if detectar_colision_circulo(nave["rect"], laser["rect"]):
+            lasers.remove(laser)
+
+
+def mover_laser(laser, rafaga, lasers):
+    if rafaga:
+        for laser in lasers[:]:
+            if laser["rect"].bottom >= 0:
+                laser["rect"].move_ip(0, -laser["velocidad_laser_y"])
+            else:
+                # Si el láser salió de la pantalla, se elimina
+                lasers.remove(laser)
+    else:
+        if laser:
+            # Si el láser está dentro de la pantalla, se mueve
+            if laser["rect"].bottom >= 0:
+                laser["rect"].move_ip(0, -laser["velocidad_laser_y"])
+            else:
+                # Si el láser salió de la pantalla, se elimina
+                laser = None
+    return laser

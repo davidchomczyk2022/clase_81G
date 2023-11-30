@@ -39,6 +39,7 @@ custom = (255,174,201)
 colors = [red,green,blue,white,cyan,magenta,yelloy,custom]
 
 size_button = (200,50)
+size_button2 = (400,100)
 font_color = red
 
 def get_color(lista):
